@@ -1,0 +1,18 @@
+name: Profile quality
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  lint:
+    uses: ai-platform-portfolio/ops-shared/.github/workflows/workflow-lint.yml@4cdff75db4e0fa6da200e39d370af4f7f825d3b7
+  quality:
+    if: always()
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          RESULT: ${{ needs.lint.result }}
+        run: test "$RESULT" = success
