@@ -1,0 +1,6 @@
+__pycache__/
+.venv/
+.env
+local.settings.json
+*.pem
+*.key
