@@ -1,0 +1,40 @@
+name: Repository catalogue
+on:
+  schedule:
+    - cron: '17 * * * *'
+  repository_dispatch:
+    types: [repository-changed]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  catalogue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json, os, re, subprocess
+          org = os.environ["GITHUB_REPOSITORY"].split("/")[0]
+          repos = json.loads(subprocess.check_output(
+              ["gh", "api", "--paginate", f"orgs/{org}/repos?type=public&per_page=100"], text=True))
+          rows = "\n".join(
+              f"| [{r['name']}](https://github.com/{org}/{r['name']}) | {r['description'] or ''} |"
+              for r in sorted(repos, key=lambda r: r["name"]))
+          table = f"| Repository | Purpose |\n| --- | --- |\n{rows}"
+          path = "profile/README.md"
+          readme = open(path).read()
+          updated = re.sub(
+              r"(?s)(<!-- repositories:start -->\n).*?(\n<!-- repositories:end -->)",
+              lambda m: m.group(1) + table + m.group(2), readme)
+          if updated == readme:
+              raise SystemExit(0)
+          open(path, "w").write(updated)
+          subprocess.run(["git", "config", "user.name", "github-actions[bot]"], check=True)
+          subprocess.run(["git", "config", "user.email",
+                          "41898282+github-actions[bot]@users.noreply.github.com"], check=True)
+          subprocess.run(["git", "commit", "-qm", "Update the repository catalogue", path], check=True)
+          subprocess.run(["git", "push"], check=True)
+          PY
