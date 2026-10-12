@@ -8,11 +8,13 @@ and practical controls for AI-assisted development.
 <!-- repositories:start -->
 | Repository | Purpose |
 | --- | --- |
-| [engineering-standards](https://github.com/ai-platform-portfolio/engineering-standards) | Agent-independent working standards and executable Terraform, Python and TypeScript quality policies. |
-| [engineering-acceptance](https://github.com/ai-platform-portfolio/engineering-acceptance) | Deliberately flawed and passing examples that test whether the engineering policies catch real problems. |
-| [terraform-modules](https://github.com/ai-platform-portfolio/terraform-modules) | Reusable infrastructure modules, with a central deployment root for the portfolio's shared infrastructure. |
-| [ops-shared](https://github.com/ai-platform-portfolio/ops-shared) | Shared CI workflows for quality checks, governance, Terraform plans and deployments, and container builds. |
-| [.github](https://github.com/ai-platform-portfolio/.github) | This organisation overview and its repository catalogue automation. |
+| [.github](https://github.com/ai-platform-portfolio/.github) | Organisation overview and repository catalogue for the AI platform portfolio |
+| [engineering-acceptance](https://github.com/ai-platform-portfolio/engineering-acceptance) | Acceptance examples for validating engineering quality enforcement |
+| [engineering-standards](https://github.com/ai-platform-portfolio/engineering-standards) | Agent-independent working standards and executable Terraform, Python and TypeScript quality policies |
+| [gitops](https://github.com/ai-platform-portfolio/gitops) | Flux GitOps configuration for the Azure AKS platform, including observability, databases and shared cluster services. |
+| [model-gateway](https://github.com/ai-platform-portfolio/model-gateway) | Architecture for governed, multi-provider AI model access through Azure API Management in regulated financial services environments. |
+| [ops-shared](https://github.com/ai-platform-portfolio/ops-shared) | Reusable GitHub Actions workflows for infrastructure delivery, quality checks, governance, container builds and Linear issue validation. |
+| [platform-iac](https://github.com/ai-platform-portfolio/platform-iac) | Reusable Terraform modules and centralised Helm charts for the AI platform. |
 <!-- repositories:end -->
 
 Start with **engineering-standards** for the rules, **engineering-acceptance** for
