@@ -27,19 +27,6 @@ module "environment" {
   location            = var.azure.location
 }
 
-# AKS status is this application's intent, not a shared hosting-module default.
-# Subscription scope preserves metadata visibility across disposable RG deletion.
-resource "azurerm_role_definition" "cluster_status" {
-  name              = "${var.application.name}-aks-status-reader"
-  scope             = local.subscription_scope
-  assignable_scopes = [local.subscription_scope]
-  description       = "Read AKS resource metadata for the portfolio status page."
-
-  permissions {
-    actions = ["Microsoft.ContainerService/managedClusters/read"]
-  }
-}
-
 module "identity" {
   source              = "git::https://github.com/ai-platform-portfolio/terraform.git//modules/azure/managed-identity?ref=a35d3f702ae23a6c6d96f1623937fe177044e992"
   name                = var.environment.name
@@ -54,7 +41,7 @@ module "identity" {
 
     cluster_status = {
       scope                = local.subscription_scope
-      role_definition_name = azurerm_role_definition.cluster_status.name
+      role_definition_name = "Contributor"
     }
   }
 }

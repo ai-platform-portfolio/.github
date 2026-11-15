@@ -81,13 +81,13 @@ provisioned; authorization, throttling and network failures mean unknown. Cluste
 power state is separate from application readiness. `/healthz` checks this host
 and remains healthy when AKS or Azure's management API is unavailable.
 
-The custom runtime role grants **only**
-`Microsoft.ContainerService/managedClusters/read` at subscription scope. It can
-read metadata for other AKS resources in that subscription, although the application
-queries only its configured cluster. This scope is deliberate: assignments attached
-to the disposable cluster/resource group disappear on teardown. The role cannot
-fetch kubeconfig, access the Kubernetes API or change a cluster. A separate AcrPull
-assignment is scoped to the existing registry.
+As explicitly requested, the runtime identity now uses built-in Contributor at
+subscription scope instead of a custom runtime Contributor role. This permits resource
+management across the subscription and is broader than the status API's reads.
+The API still queries only its configured cluster and returns normalized status.
+AcrPull remains scoped to the existing registry. Contributor does not include IAM
+role-assignment management; the deploying identity needs that capability separately
+to create the declared runtime grants.
 
 ### Local validation
 
@@ -118,7 +118,7 @@ scan. The Dockerfile pins the official Python Alpine base by digest.
 The root composes `container-app-environment`, the existing `managed-identity`
 module and `container-app` from the Terraform library, following `gitops/bootstrap`.
 The caller owns the resource group, grouped Azure/environment/application intent,
-registry/DNS lookups and the AKS metadata role definition. The identity module owns
+registry/DNS lookups and the runtime role selection. The identity module owns
 its scoped grants; the app module owns sizing/probe defaults and optional managed
 HTTPS wiring/cleanup. The caller explicitly selects public ingress and one warm
 replica. Modules contain no portfolio domain, cluster name or status permission.
