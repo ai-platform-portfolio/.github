@@ -89,7 +89,7 @@ jobs:
       id-token: write
       pull-requests: write
 
-    uses: ai-platform-portfolio/ops-shared/.github/workflows/terraform.yml@a89622ab6d721797523d2f1196a45b5d5074e1db
+    uses: ai-platform-portfolio/ops-shared/.github/workflows/terraform.yml@1d6ea5ec3364fd16d6f264a7329b6191757a98a0
     with:
       root: portfolio/terraform
       state-key: portfolio-hosting.tfstate

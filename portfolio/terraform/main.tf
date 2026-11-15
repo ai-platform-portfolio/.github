@@ -164,7 +164,7 @@ resource "azurerm_container_app_custom_domain" "portfolio" {
   name             = var.hostname
   container_app_id = azurerm_container_app.portfolio.id
 
-  # Azure's managed-certificate flow updates the binding asynchronously.
+  # The AzAPI resource below owns only the managed-certificate binding.
   lifecycle {
     ignore_changes = [certificate_binding_type, container_app_environment_certificate_id]
   }
@@ -179,4 +179,50 @@ resource "azurerm_container_app_environment_managed_certificate" "portfolio" {
   domain_control_validation    = "CNAME"
 
   depends_on = [azurerm_container_app_custom_domain.portfolio]
+}
+
+# Remove the binding before deleting its certificate during host destruction.
+# azapi_update_resource alone leaves its patched properties behind on destroy.
+resource "azapi_resource_action" "unbind_https" {
+  type                   = "Microsoft.App/containerApps@2025-07-01"
+  resource_id            = azurerm_container_app.portfolio.id
+  method                 = "PATCH"
+  when                   = "destroy"
+  response_export_values = []
+
+  body = {
+    properties = {
+      configuration = {
+        ingress = { customDomains = [] }
+      }
+    }
+  }
+
+  lifecycle {
+    replace_triggered_by = [azurerm_container_app_environment_managed_certificate.portfolio]
+  }
+
+  depends_on = [azurerm_container_app_environment_managed_certificate.portfolio]
+}
+
+resource "azapi_update_resource" "https_binding" {
+  type                   = "Microsoft.App/containerApps@2025-07-01"
+  resource_id            = azurerm_container_app.portfolio.id
+  response_export_values = []
+
+  body = {
+    properties = {
+      configuration = {
+        ingress = {
+          customDomains = [{
+            name          = var.hostname
+            bindingType   = "SniEnabled"
+            certificateId = azurerm_container_app_environment_managed_certificate.portfolio.id
+          }]
+        }
+      }
+    }
+  }
+
+  depends_on = [azapi_resource_action.unbind_https]
 }

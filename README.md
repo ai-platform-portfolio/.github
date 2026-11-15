@@ -53,6 +53,13 @@ Azure issues and renews the managed certificate. No AKS firewall, ingress, DNS
 record or VNet is changed. Verify public DNS and certificate binding after apply;
 Azure's asynchronous issuance and DNS propagation remain live acceptance gates.
 
+AzureRM owns the hostname registration and managed certificate. Its certificate
+argument does not accept managed-certificate IDs, so Azure's existing AzAPI
+provider binds that certificate through the native API. A destroy-only action
+removes the binding before Terraform deletes the certificate; an update resource
+alone would leave the binding behind on destroy. No CLI provisioner, certificate
+private key or additional certificate service is used.
+
 The default is one Consumption replica at 0.25 vCPU / 0.5 GiB, with maximum one
 replica. This is a small portfolio host, not a high-availability design. Azure can
 restart the replica, and brief interruptions remain possible. No dedicated profile,
