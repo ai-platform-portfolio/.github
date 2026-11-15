@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 1.17, < 2.0"
+  required_version = ">= 1.13.9, < 2.0"
 
   backend "azurerm" {
     use_azuread_auth = true

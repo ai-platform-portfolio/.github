@@ -21,11 +21,11 @@ The existing `localacrk8s` registry and DNS zone are persistent prerequisites.
 
 ### Delivery
 
-`.github/workflows/portfolio.yml` composes the shared Docker and Azure Terraform
+`.github/workflows/portfolio.yml` composes the shared Docker and Azure OpenTofu
 workflows. Same-repository PRs publish scanned preview images and plan their actual
-digests. Forks run tests, offline Terraform validation and build-only image scans.
+digests. Forks run tests, offline OpenTofu validation and build-only image scans.
 Main pushes publish a scanned image; **only a manual run from `main` invokes
-Terraform apply**. Each invocation builds the selected source and deploys its
+OpenTofu apply**. Each invocation builds the selected source and deploys its
 immutable image digest. No stored registry password or Azure client secret is used.
 
 Merge the shared `ops-shared` workflow first, update this caller to its actual merge
@@ -56,7 +56,7 @@ Azure's asynchronous issuance and DNS propagation remain live acceptance gates.
 AzureRM owns the hostname registration and managed certificate. Its certificate
 argument does not accept managed-certificate IDs, so Azure's existing AzAPI
 provider binds that certificate through the native API. A destroy-only action
-removes the binding before Terraform deletes the certificate; an update resource
+removes the binding before OpenTofu deletes the certificate; an update resource
 alone would leave the binding behind on destroy. No CLI provisioner, certificate
 private key or additional certificate service is used.
 
@@ -91,9 +91,9 @@ assignment is scoped to the existing registry.
 ### Local validation
 
 ```sh
-terraform -chdir=portfolio/terraform init -backend=false
-terraform -chdir=portfolio/terraform fmt -check
-terraform -chdir=portfolio/terraform validate
+tofu -chdir=portfolio/terraform init -backend=false
+tofu -chdir=portfolio/terraform fmt -check
+tofu -chdir=portfolio/terraform validate
 
 python -m venv .venv
 .venv/bin/pip install --require-hashes -r portfolio/image/requirements.txt

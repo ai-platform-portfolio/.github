@@ -27,10 +27,10 @@ jobs:
       LINEAR_CLIENT_SECRET: ${{ secrets.LINEAR_CLIENT_SECRET }}
 
   validate:
-    uses: ai-platform-portfolio/ops-shared/.github/workflows/validate.yml@17a409d93bb7a8d697ee33690adfc96bc9a8651d
+    uses: ai-platform-portfolio/ops-shared/.github/workflows/validate.yml@4b8fe10ffffad31af9ee4766ab3ad7e72c2f76fa
     with:
       terraform-directories: '["portfolio/terraform"]'
-      terraform-version: '1.17.1'
+      tofu-version: '1.13.9'
 
   test:
     runs-on: ubuntu-latest
@@ -89,9 +89,10 @@ jobs:
       id-token: write
       pull-requests: write
 
-    uses: ai-platform-portfolio/ops-shared/.github/workflows/terraform.yml@1d6ea5ec3364fd16d6f264a7329b6191757a98a0
+    uses: ai-platform-portfolio/ops-shared/.github/workflows/terraform.yml@4b8fe10ffffad31af9ee4766ab3ad7e72c2f76fa
     with:
       root: portfolio/terraform
+      tofu-version: '1.13.9'
       state-key: portfolio-hosting.tfstate
       variables: ${{ format('{{"image":"localacrk8s.azurecr.io/portfolio/site@{0}"}}', needs.image.outputs.digest) }}
     secrets:
