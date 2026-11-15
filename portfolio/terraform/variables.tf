@@ -1,22 +1,23 @@
-variable "location" {
-  type        = string
-  description = "Azure region for the independent portfolio host."
+variable "azure" {
+  description = "Independent hosting resource group and Azure region."
+  type = object({
+    location            = string
+    resource_group_name = string
+  })
 }
 
-variable "name" {
-  type        = string
-  description = "Name for this hosting instance and its related resources."
-  default     = "portfolio"
+variable "environment" {
+  description = "Container Apps environment name."
+  type        = object({ name = string })
 }
 
-variable "hostname" {
-  type        = string
-  description = "New subdomain within the existing DNS zone."
-
-  validation {
-    condition     = endswith(var.hostname, ".${var.dns_zone.name}") && var.hostname != var.dns_zone.name
-    error_message = "Use a subdomain of the configured DNS zone."
-  }
+variable "application" {
+  description = "Application name, hostname and warm replica intent."
+  type = object({
+    name         = string
+    hostname     = string
+    min_replicas = number
+  })
 }
 
 variable "dns_zone" {

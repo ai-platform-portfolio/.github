@@ -27,7 +27,7 @@ jobs:
       LINEAR_CLIENT_SECRET: ${{ secrets.LINEAR_CLIENT_SECRET }}
 
   validate:
-    uses: ai-platform-portfolio/ops-shared/.github/workflows/validate.yml@4b8fe10ffffad31af9ee4766ab3ad7e72c2f76fa
+    uses: ai-platform-portfolio/ops-shared/.github/workflows/validate.yml@f61b3e4f5c5db462c73581c0b95ddefef14b9569
     with:
       terraform-directories: '["portfolio/terraform"]'
       tofu-version: '1.13.9'
@@ -89,7 +89,7 @@ jobs:
       id-token: write
       pull-requests: write
 
-    uses: ai-platform-portfolio/ops-shared/.github/workflows/terraform.yml@4b8fe10ffffad31af9ee4766ab3ad7e72c2f76fa
+    uses: ai-platform-portfolio/ops-shared/.github/workflows/terraform.yml@f61b3e4f5c5db462c73581c0b95ddefef14b9569
     with:
       root: portfolio/terraform
       tofu-version: '1.13.9'

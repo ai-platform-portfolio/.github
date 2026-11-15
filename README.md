@@ -28,9 +28,9 @@ Main pushes publish a scanned image; **only a manual run from `main` invokes
 OpenTofu apply**. Each invocation builds the selected source and deploys its
 immutable image digest. No stored registry password or Azure client secret is used.
 
-Merge the shared `ops-shared` workflow first, update this caller to its actual merge
-SHA, then merge the portfolio PR. The implementation pin may refer to the reviewed
-shared PR commit until that final adoption update. Before the first manual run:
+The OpenTofu shared workflows are pinned to their actual merged revision. Merge
+the Container Apps module-library PR first, then adopt its actual merge SHA in
+all three module calls before merging the portfolio PR. Before the first manual run:
 
 1. Verify the existing organisation `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` and
    `AZURE_SUBSCRIPTION_ID` secrets and federated trust for this repository and the
@@ -53,7 +53,8 @@ Azure issues and renews the managed certificate. No AKS firewall, ingress, DNS
 record or VNet is changed. Verify public DNS and certificate binding after apply;
 Azure's asynchronous issuance and DNS propagation remain live acceptance gates.
 
-AzureRM owns the hostname registration and managed certificate. Its certificate
+The reusable `container-app` module owns hostname registration and the managed
+certificate through AzureRM. Its certificate
 argument does not accept managed-certificate IDs, so Azure's existing AzAPI
 provider binds that certificate through the native API. A destroy-only action
 removes the binding before OpenTofu deletes the certificate; an update resource
@@ -111,3 +112,15 @@ Keep actual subscription/tenant IDs, backend configuration and credentials out o
 Git. Upgrade dependencies with `uv pip compile portfolio/image/requirements.in
 --generate-hashes --output-file portfolio/image/requirements.txt` and rerun the image
 scan. The Dockerfile pins the official Python Alpine base by digest.
+
+### Reusable module ownership
+
+The root composes `container-app-environment`, the existing `managed-identity`
+module and `container-app` from the Terraform library, following `gitops/bootstrap`.
+The caller owns the resource group, grouped Azure/environment/application intent,
+registry/DNS lookups and the AKS metadata role definition. The identity module owns
+its scoped grants; the app module owns sizing/probe defaults and optional managed
+HTTPS wiring/cleanup. The caller explicitly selects public ingress and one warm
+replica. Modules contain no portfolio domain, cluster name or status permission.
+Names and the approved resource set are preserved. No deployment has taken place,
+so no resource-address migration blocks are needed.

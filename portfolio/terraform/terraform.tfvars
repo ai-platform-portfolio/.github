@@ -1,5 +1,17 @@
-location = "uksouth"
-hostname = "portfolio.dev.michaelalinks.com"
+azure = {
+  location            = "uksouth"
+  resource_group_name = "rg-portfolio-hosting"
+}
+
+environment = {
+  name = "portfolio-hosting"
+}
+
+application = {
+  name         = "portfolio"
+  hostname     = "portfolio.dev.michaelalinks.com"
+  min_replicas = 1
+}
 
 dns_zone = {
   name                = "dev.michaelalinks.com"
