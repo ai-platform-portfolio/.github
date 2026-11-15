@@ -24,8 +24,8 @@ The existing `localacrk8s` registry and DNS zone are persistent prerequisites.
 `.github/workflows/portfolio.yml` composes the shared Docker and Azure OpenTofu
 workflows. Same-repository PRs publish scanned preview images and plan their actual
 digests. Forks run tests, offline OpenTofu validation and build-only image scans.
-Main pushes publish a scanned image; **only a manual run from `main` invokes
-OpenTofu apply**. Each invocation builds the selected source and deploys its
+Main pushes publish a scanned image and automatically invoke **OpenTofu
+plan/apply**. Manual runs from `main` also deploy; PRs only plan. Each invocation builds the selected source and deploys its
 immutable image digest. No stored registry password or Azure client secret is used.
 
 The OpenTofu shared workflows are pinned to their actual merged revision. Merge

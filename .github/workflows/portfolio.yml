@@ -77,12 +77,8 @@ jobs:
 
   infrastructure:
     needs: image
-    # PRs plan their published digest. Main pushes publish only; deployment needs
-    # an explicit manual run from main, so merging these PRs cannot deploy Azure.
-    if: >-
-      needs.image.outputs.digest != '' &&
-      (github.event_name == 'pull_request' ||
-       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'))
+    # Publish/scan must succeed first. PRs plan; main pushes and manual runs apply.
+    if: needs.image.outputs.digest != ''
 
     permissions:
       contents: read

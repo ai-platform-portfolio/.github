@@ -21,7 +21,7 @@ resource "azurerm_resource_group" "portfolio" {
 }
 
 module "environment" {
-  source              = "git::https://github.com/ai-platform-portfolio/terraform.git//modules/azure/container-app-environment?ref=0c2b5bccd056a3021042430e54402e2f5a36eeb9"
+  source              = "git::https://github.com/ai-platform-portfolio/terraform.git//modules/azure/container-app-environment?ref=a35d3f702ae23a6c6d96f1623937fe177044e992"
   name                = var.environment.name
   resource_group_name = azurerm_resource_group.portfolio.name
   location            = var.azure.location
@@ -41,7 +41,7 @@ resource "azurerm_role_definition" "cluster_status" {
 }
 
 module "identity" {
-  source              = "git::https://github.com/ai-platform-portfolio/terraform.git//modules/azure/managed-identity?ref=0c2b5bccd056a3021042430e54402e2f5a36eeb9"
+  source              = "git::https://github.com/ai-platform-portfolio/terraform.git//modules/azure/managed-identity?ref=a35d3f702ae23a6c6d96f1623937fe177044e992"
   name                = var.environment.name
   resource_group_name = azurerm_resource_group.portfolio.name
   location            = var.azure.location
@@ -60,7 +60,7 @@ module "identity" {
 }
 
 module "application" {
-  source                       = "git::https://github.com/ai-platform-portfolio/terraform.git//modules/azure/container-app?ref=0c2b5bccd056a3021042430e54402e2f5a36eeb9"
+  source                       = "git::https://github.com/ai-platform-portfolio/terraform.git//modules/azure/container-app?ref=a35d3f702ae23a6c6d96f1623937fe177044e992"
   name                         = var.application.name
   resource_group_name          = azurerm_resource_group.portfolio.name
   container_app_environment_id = module.environment.id
