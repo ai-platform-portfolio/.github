@@ -4,11 +4,14 @@ Owns all CI publisher grants formerly managed by disposable GitOps bootstrap:
 Foundry Project Manager at subscription scope and Storage Blob Data Contributor
 on the existing Terraform backend account. They use the same existing principal,
 built-in roles and scopes; no registration, federation, backend or cluster is
-created. Other externally supplied roles retain their existing ownership. This root also
-owns the explicitly approved Microsoft Graph `User.Read.All` and
-`Application.Read.All` application roles needed for workforce planning. These
-permit tenant-wide reads, not writes. A directory administrator establishes or
-changes these Graph grants; CI is not granted permission to administer them.
+created. Other externally supplied roles retain their existing ownership.
+
+The root also owns the explicitly approved Microsoft Graph read roles
+`User.Read.All` and `Application.Read.All`, plus `Application.ReadWrite.OwnedBy`
+for applications CI owns and `AppRoleAssignment.ReadWrite.All` for assignment
+management. The last grant can manage application assignments and API permission
+grants tenant-wide, including these grants; treat CI as a privileged identity.
+A directory administrator bootstraps these permissions before CI can use them.
 
 This Azure-only root uses `ci-access.tfstate` in the existing persistent backend.
 It is independent of `portfolio-hosting.tfstate`, `workforce-identity.tfstate` and

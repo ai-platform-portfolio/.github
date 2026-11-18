@@ -41,9 +41,10 @@ variable "operators" {
 variable "application" {
   description = "Entra gallery application and role used for operator SAML access."
   type = object({
-    name          = string
-    template_name = string
-    role_name     = string
+    name              = string
+    template_name     = string
+    role_name         = string
+    additional_owners = optional(set(string), [])
   })
 }
 

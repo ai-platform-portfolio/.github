@@ -14,6 +14,9 @@ operators = {
 }
 
 application = {
+  # Existing CI service principal object IDs for ownership-scoped management.
+  additional_owners = ["00000000-0000-0000-0000-000000000001"]
+
   name          = "portfolio-aws-identity-center"
   template_name = "AWS IAM Identity Center (successor to AWS Single Sign-On)"
   role_name     = "User"
