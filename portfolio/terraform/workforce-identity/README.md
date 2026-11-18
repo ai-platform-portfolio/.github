@@ -79,8 +79,9 @@ No login is invoked automatically by this repository.
    ```
 
 Tracked inputs contain the actual London instance and the exact service-provider
-metadata supplied by AWS. Both shared modules are pinned to the verified merge revision of
-[Terraform PR32](https://github.com/ai-platform-portfolio/terraform/pull/32).
+metadata supplied by AWS. The AWS module uses merged
+[Terraform PR32](https://github.com/ai-platform-portfolio/terraform/pull/32); the
+SAML module includes the dependency-order repair from Terraform PR33.
 Complete and validate the prerequisites before claiming readiness.
 
 ## Infrastructure pipeline

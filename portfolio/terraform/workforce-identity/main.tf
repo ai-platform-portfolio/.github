@@ -31,7 +31,7 @@ data "aws_iam_policy_document" "bootstrap" {
 }
 
 module "entra" {
-  source = "git::https://github.com/ai-platform-portfolio/terraform.git//modules/azure/saml-application?ref=25831afa415fafda7af551b69acba4eaa182ff43"
+  source = "git::https://github.com/ai-platform-portfolio/terraform.git//modules/azure/saml-application?ref=d3288880d29671f5e4fe58dd61e1ec0a74d36bf2"
 
   display_name  = var.application.name
   template_name = var.application.template_name

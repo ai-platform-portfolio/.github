@@ -32,6 +32,11 @@ resource "aws_iam_role_policy" "ci_read" {
     Statement = concat([
       {
         Effect   = "Allow"
+        Action   = ["iam:ListOpenIDConnectProviders"]
+        Resource = "*"
+      },
+      {
+        Effect   = "Allow"
         Action   = ["iam:GetRole", "iam:GetRolePolicy", "iam:ListRolePolicies", "iam:ListAttachedRolePolicies", "iam:ListInstanceProfilesForRole"]
         Resource = [for role in var.ci_roles : "arn:aws:iam::${var.bootstrap_access.account_id}:role/${role.name}"]
       },

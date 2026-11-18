@@ -4,6 +4,8 @@ backend_storage_account = {
 }
 
 ci_publisher = {
+  graph_read_roles = ["User.Read.All", "Application.Read.All"]
+
   principal_id = "34a1cc81-438a-4359-8d33-7a00a56e8d2a"
 
   role_assignments = {
