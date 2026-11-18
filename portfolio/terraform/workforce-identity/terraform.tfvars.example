@@ -1,0 +1,42 @@
+# Copy to terraform.tfvars and supply actual non-secret environment metadata.
+# Obtain these values from the existing Identity Center instance, not AKS.
+identity_center = {
+  region            = "eu-west-3"
+  instance_arn      = "arn:aws:sso:::instance/ssoins-1234567890abcdef"
+  identity_store_id = "d-1234567890"
+  portal_url        = "https://example.awsapps.com/start"
+  entity_id         = "https://example.awsapps.com/start"
+  acs_url           = "https://eu-west-3.signin.aws.amazon.com/platform/saml/acs/example"
+}
+
+operators = {
+  owner = "operator@example.com"
+}
+
+application = {
+  name          = "portfolio-aws-identity-center"
+  template_name = "AWS IAM Identity Center (successor to AWS Single Sign-On)"
+  role_name     = "User"
+}
+
+bootstrap_access = {
+  account_id      = "123456789012"
+  profile_name    = "model-gateway"
+  permission_set  = "PortfolioGatewayBootstrap"
+  gateway_role    = "management-litellm-bedrock"
+  workload_region = "eu-west-3"
+}
+
+github_subject_prefix = "repo:example/platform"
+
+ci_roles = {
+  plan = {
+    name        = "example-workforce-plan"
+    environment = "central-plan"
+  }
+
+  apply = {
+    name        = "example-workforce-apply"
+    environment = "central-apply"
+  }
+}

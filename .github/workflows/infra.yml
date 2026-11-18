@@ -1,0 +1,77 @@
+name: Portfolio infrastructure
+
+on:
+  pull_request:
+    paths:
+      - portfolio/terraform/**
+      - .github/workflows/infra.yml
+
+  push:
+    branches: [main]
+    paths:
+      - portfolio/terraform/**
+      - .github/workflows/infra.yml
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linear:
+    if: github.event_name == 'pull_request'
+    uses: ai-platform-portfolio/ops-shared/.github/workflows/linear-issue-check.yml@17a409d93bb7a8d697ee33690adfc96bc9a8651d
+    secrets:
+      LINEAR_CLIENT_ID: ${{ secrets.LINEAR_CLIENT_ID }}
+      LINEAR_CLIENT_SECRET: ${{ secrets.LINEAR_CLIENT_SECRET }}
+
+  validate:
+    uses: ai-platform-portfolio/ops-shared/.github/workflows/validate.yml@f61b3e4f5c5db462c73581c0b95ddefef14b9569
+    with:
+      terraform-directories: '["portfolio/terraform/*"]'
+      tofu-version: '1.13.9'
+
+  infrastructure:
+    name: Infrastructure (${{ matrix.root }})
+    # PRs plan each root; main pushes and manual main runs apply.
+    needs: validate
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - root: portfolio/terraform/ci-access
+            state-key: ci-access.tfstate
+            plan-artifact: ci-access-plan
+            vars-file: terraform.tfvars
+
+          - root: portfolio/terraform/workforce-identity
+            state-key: workforce-identity.tfstate
+            plan-artifact: workforce-identity-plan
+            vars-file: terraform.tfvars
+            aws-region: eu-west-2
+            aws-plan-role: ${{ vars.AWS_WORKFORCE_PLAN_ROLE_ARN }}
+            aws-apply-role: ${{ vars.AWS_WORKFORCE_APPLY_ROLE_ARN }}
+
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+
+    uses: ai-platform-portfolio/ops-shared/.github/workflows/terraform.yml@edbf70b90121ad9ab1d96ddc4b7cad3cabce4bcd
+    with:
+      root: ${{ matrix.root }}
+      state-key: ${{ matrix.state-key }}
+      plan-artifact: ${{ matrix.plan-artifact }}
+      vars-file: ${{ matrix.vars-file || '' }}
+      tofu-version: '1.13.9'
+      aws-region: ${{ matrix.aws-region || '' }}
+      aws-plan-role-arn: ${{ matrix.aws-plan-role || '' }}
+      aws-apply-role-arn: ${{ matrix.aws-apply-role || '' }}
+    secrets:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      TF_BACKEND_RESOURCE_GROUP: ${{ secrets.TF_BACKEND_RESOURCE_GROUP }}
+      TF_BACKEND_RESOURCE_NAME: ${{ secrets.TF_BACKEND_RESOURCE_NAME }}
+      TF_BACKEND_CONTAINER: ${{ secrets.TF_BACKEND_CONTAINER }}
