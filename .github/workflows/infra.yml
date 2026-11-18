@@ -54,7 +54,7 @@ jobs:
       id-token: write
       pull-requests: write
 
-    uses: ai-platform-portfolio/ops-shared/.github/workflows/terraform.yml@19c2791a7bd1c7e1a608a06ace2d70f7f33c73c0
+    uses: ai-platform-portfolio/ops-shared/.github/workflows/terraform.yml@7ac1520a2e68604c8341b77a173b2923fdcdb8a6
     with:
       root: ${{ matrix.root }}
       state-key: ${{ matrix.state-key }}

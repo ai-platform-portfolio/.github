@@ -98,11 +98,9 @@ Store permissions. The existing Azure OIDC identity also needs backend access an
 Entra Graph read/application-management permissions. The workflow does not create
 trust/permissions or reuse the local user's SSO session. Main dispatches apply a
 saved plan; other branches only plan. PRs and main pushes only validate offline.
-Shared workflow adoption must use its actual reviewed merge revision before
-merging this consumer. The matrix currently pins the tested candidate in
-[ops-shared PR30](https://github.com/ai-platform-portfolio/ops-shared/pull/30);
-merge that change first and adopt its verified merge SHA. Native AWS authentication
-CI is not yet proved.
+The matrix pins the verified merge revision of
+[ops-shared PR30](https://github.com/ai-platform-portfolio/ops-shared/pull/30).
+Native AWS authentication CI is not yet proved.
 
 ## Boundaries and acceptance
 
