@@ -10,17 +10,44 @@ not operational. This hosting work does not implement that older integration.
 ## Persistent workforce identity
 
 Persistent operator authentication lives separately in
-[`foundations/workforce-identity/`](foundations/workforce-identity/README.md).
+[`portfolio/terraform/workforce-identity/`](portfolio/terraform/workforce-identity/README.md).
 It uses `workforce-identity.tfstate` in the existing Azure backend, independently
 of `portfolio-hosting.tfstate` and disposable GitOps bootstrap. Its Entra-backed
 AWS access uses native refreshable CLI SSO; initial SAML connection and the 90-day
 interactive session setting require the documented one-time console setup.
-The identity validation workflow does not apply changes.
+Both persistent roots live under `portfolio/terraform`, in independent directories
+and state files. Moving a root does not change its resource addresses or blob key.
+
+### Infrastructure pipeline
+
+`.github/workflows/infra.yml` validates `portfolio/terraform/*` offline on PRs and
+main pushes using the existing ops-shared template. A manual dispatch calls its
+Terraform plan/apply template once per explicit matrix row. Main dispatches apply
+the saved plan; dispatches on other branches only plan. The caller owns the matrix,
+and each row supplies its root, state key and unique plan artifact name.
+
+The initial deployment matrix contains only `portfolio/terraform/workforce-identity`.
+Add a row for another standalone root when it is ready for deployment. The Container
+App remains in `portfolio.yml`: it still builds/scans an image and deploys its exact
+digest. Identity-only changes do not trigger that image workflow.
+
+Before dispatching workforce identity, provide its actual tracked
+`terraform.tfvars`, set repository variables `AWS_WORKFORCE_PLAN_ROLE_ARN` and
+`AWS_WORKFORCE_APPLY_ROLE_ARN` to existing authorised CI role ARNs, and match the
+matrix AWS region to Identity Center's home region. These are deployment roles,
+separate from the local user's Identity Center role. Verify their GitHub OIDC
+trust for this repository's `central-plan` and `central-apply` environments, their
+Identity Center/Identity Store permissions, and the existing Azure identity's
+backend/Entra Graph permissions. No trust, role or permission is created by the
+workflow. Missing AWS inputs fail before backend initialization. The existing
+organisation Azure OIDC and backend secrets remain the authentication contract.
+No AWS access keys are used. The pipeline is source-only until these prerequisites
+and the documented SAML setup are completed and a real plan is reviewed.
 
 ## Always-on portfolio
 
 [`portfolio/image/`](portfolio/image/) contains the website and its small Python
-API. [`portfolio/terraform/`](portfolio/terraform/) owns independent Azure Container
+API. [`portfolio/terraform/container-app/`](portfolio/terraform/container-app/) owns independent Azure Container
 Apps hosting at `https://portfolio.dev.michaelalinks.com`. Initial deployment is
 pending; a successful build or plan is not evidence that the site is live.
 
@@ -102,9 +129,9 @@ to create the declared runtime grants.
 ### Local validation
 
 ```sh
-tofu -chdir=portfolio/terraform init -backend=false
-tofu -chdir=portfolio/terraform fmt -check
-tofu -chdir=portfolio/terraform validate
+tofu -chdir=portfolio/terraform/container-app init -backend=false
+tofu -chdir=portfolio/terraform/container-app fmt -check
+tofu -chdir=portfolio/terraform/container-app validate
 
 python -m venv .venv
 .venv/bin/pip install --require-hashes -r portfolio/image/requirements.txt

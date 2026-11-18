@@ -3,14 +3,16 @@ name: Portfolio
 on:
   pull_request:
     paths:
-      - portfolio/**
+      - portfolio/image/**
+      - portfolio/terraform/container-app/**
       - profile/README.md
       - .github/workflows/portfolio.yml
 
   push:
     branches: [main]
     paths:
-      - portfolio/**
+      - portfolio/image/**
+      - portfolio/terraform/container-app/**
       - .github/workflows/portfolio.yml
 
   workflow_dispatch:
@@ -29,7 +31,7 @@ jobs:
   validate:
     uses: ai-platform-portfolio/ops-shared/.github/workflows/validate.yml@f61b3e4f5c5db462c73581c0b95ddefef14b9569
     with:
-      terraform-directories: '["portfolio/terraform"]'
+      terraform-directories: '["portfolio/terraform/container-app"]'
       tofu-version: '1.13.9'
 
   test:
@@ -87,7 +89,7 @@ jobs:
 
     uses: ai-platform-portfolio/ops-shared/.github/workflows/terraform.yml@f61b3e4f5c5db462c73581c0b95ddefef14b9569
     with:
-      root: portfolio/terraform
+      root: portfolio/terraform/container-app
       tofu-version: '1.13.9'
       state-key: portfolio-hosting.tfstate
       variables: ${{ format('{{"image":"localacrk8s.azurecr.io/portfolio/site@{0}"}}', needs.image.outputs.digest) }}

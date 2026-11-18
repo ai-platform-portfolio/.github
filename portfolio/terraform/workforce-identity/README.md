@@ -9,8 +9,8 @@ provisioning token, credential helper or deployment runner.
 
 | Root | State key | Lifecycle |
 | --- | --- | --- |
-| `portfolio/terraform` | `portfolio-hosting.tfstate` | Container App hosting |
-| `foundations/workforce-identity` | `workforce-identity.tfstate` | Persistent operator authentication |
+| `portfolio/terraform/container-app` | `portfolio-hosting.tfstate` | Container App hosting |
+| `portfolio/terraform/workforce-identity` | `workforce-identity.tfstate` | Persistent operator authentication |
 | GitOps `bootstrap` | Existing bootstrap key | Disposable platform |
 
 Use the existing persistent Azure backend account/container with a separate key.
@@ -81,6 +81,29 @@ not deployed. Both shared modules are pinned to the verified merge revision of
 [Terraform PR32](https://github.com/ai-platform-portfolio/terraform/pull/32).
 Complete and validate the prerequisites before claiming readiness.
 
+## Infrastructure pipeline
+
+The repository's `.github/workflows/infra.yml` validates both Terraform subroots
+offline, and manually dispatches this root through a caller-owned matrix and the
+shared ops-shared Terraform workflow. It passes `workforce-identity.tfstate` and
+a unique `workforce-identity-plan` artifact. The Container App's image/deployment
+flow stays in `portfolio.yml`, using its own root and unchanged hosting state key.
+
+Before dispatch, commit actual `terraform.tfvars` metadata and configure existing
+CI roles in repository variables `AWS_WORKFORCE_PLAN_ROLE_ARN` and
+`AWS_WORKFORCE_APPLY_ROLE_ARN`. Match the matrix AWS region to the instance home
+region. Those roles must trust the actual GitHub environment subjects for
+`central-plan` / `central-apply` and have the required Identity Center/Identity
+Store permissions. The existing Azure OIDC identity also needs backend access and
+Entra Graph read/application-management permissions. The workflow does not create
+trust/permissions or reuse the local user's SSO session. Main dispatches apply a
+saved plan; other branches only plan. PRs and main pushes only validate offline.
+Shared workflow adoption must use its actual reviewed merge revision before
+merging this consumer. The matrix currently pins the tested candidate in
+[ops-shared PR30](https://github.com/ai-platform-portfolio/ops-shared/pull/30);
+merge that change first and adopt its verified merge SHA. Native AWS authentication
+CI is not yet proved.
+
 ## Boundaries and acceptance
 
 The reusable AWS module receives only native IAM actions on one named gateway
@@ -109,8 +132,7 @@ revoked. There is no indefinite session. Before the SAML certificate expires,
 rotate it with overlapping trust, update AWS metadata and test sign-in before
 retiring the old certificate; automatic certificate/metadata rotation is not
 implemented. Removing operator access requires revoking active sessions as well
-as removing assignments. No automatic startup, merge or deployment is authorised
-by this root or its offline validation workflow.
+as removing assignments. No cluster startup is triggered by this foundation.
 
 Sources: [Entra integration](https://learn.microsoft.com/en-us/entra/identity/saas-apps/aws-single-sign-on-tutorial),
 [native CLI SSO](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html),
