@@ -85,7 +85,7 @@ Complete and validate the prerequisites before claiming readiness.
 ## Infrastructure pipeline
 
 The repository's `.github/workflows/infra.yml` validates both Terraform subroots
-offline, and manually dispatches this root through a caller-owned matrix and the
+offline, and plans this root on PRs or manual dispatch through a caller-owned matrix and the
 shared ops-shared Terraform workflow. It passes `workforce-identity.tfstate` and
 a unique `workforce-identity-plan` artifact. The Container App's image/deployment
 flow stays in `portfolio.yml`, using its own root and unchanged hosting state key.
@@ -98,7 +98,7 @@ region. Those roles must trust the actual GitHub environment subjects for
 Store permissions. The existing Azure OIDC identity also needs backend access and
 Entra Graph read/application-management permissions. The workflow does not create
 trust/permissions or reuse the local user's SSO session. Main dispatches apply a
-saved plan; other branches only plan. PRs and main pushes only validate offline.
+saved plan; PRs and other branches only plan. Main pushes only validate offline.
 The matrix pins the verified merge revision of
 [ops-shared PR30](https://github.com/ai-platform-portfolio/ops-shared/pull/30).
 Native AWS authentication CI is not yet proved.

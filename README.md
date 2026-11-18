@@ -21,9 +21,9 @@ and state files. Moving a root does not change its resource addresses or blob ke
 ### Infrastructure pipeline
 
 `.github/workflows/infra.yml` validates `portfolio/terraform/*` offline on PRs and
-main pushes using the existing ops-shared template. A manual dispatch calls its
+main pushes using the existing ops-shared template. PRs and manual dispatches call its
 Terraform plan/apply template once per explicit matrix row. Main dispatches apply
-the saved plan; dispatches on other branches only plan. The caller owns the matrix,
+the saved plan; PRs and dispatches on other branches only plan. The caller owns the matrix,
 and each row supplies its root, state key and unique plan artifact name.
 
 The deployment matrix contains `portfolio/terraform/ci-access` and
