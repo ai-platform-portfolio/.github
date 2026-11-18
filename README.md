@@ -7,6 +7,16 @@ The introduction is maintained by hand. The catalogue markers reserve the table
 for repository catalogue automation; the proposed GitHub webhook integration is
 not operational. This hosting work does not implement that older integration.
 
+## Persistent workforce identity
+
+Persistent operator authentication lives separately in
+[`foundations/workforce-identity/`](foundations/workforce-identity/README.md).
+It uses `workforce-identity.tfstate` in the existing Azure backend, independently
+of `portfolio-hosting.tfstate` and disposable GitOps bootstrap. Its Entra-backed
+AWS access uses native refreshable CLI SSO; initial SAML connection and the 90-day
+interactive session setting require the documented one-time console setup.
+The identity validation workflow does not apply changes.
+
 ## Always-on portfolio
 
 [`portfolio/image/`](portfolio/image/) contains the website and its small Python

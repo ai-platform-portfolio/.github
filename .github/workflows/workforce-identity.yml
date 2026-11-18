@@ -1,0 +1,30 @@
+name: Validate workforce identity
+
+on:
+  pull_request:
+    paths:
+      - foundations/workforce-identity/**
+      - .github/workflows/workforce-identity.yml
+
+  push:
+    branches: [main]
+    paths:
+      - foundations/workforce-identity/**
+      - .github/workflows/workforce-identity.yml
+
+permissions:
+  contents: read
+
+jobs:
+  linear:
+    if: github.event_name == 'pull_request'
+    uses: ai-platform-portfolio/ops-shared/.github/workflows/linear-issue-check.yml@17a409d93bb7a8d697ee33690adfc96bc9a8651d
+    secrets:
+      LINEAR_CLIENT_ID: ${{ secrets.LINEAR_CLIENT_ID }}
+      LINEAR_CLIENT_SECRET: ${{ secrets.LINEAR_CLIENT_SECRET }}
+
+  validate:
+    uses: ai-platform-portfolio/ops-shared/.github/workflows/validate.yml@f61b3e4f5c5db462c73581c0b95ddefef14b9569
+    with:
+      terraform-directories: '["foundations/workforce-identity"]'
+      tofu-version: '1.13.9'
