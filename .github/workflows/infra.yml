@@ -50,7 +50,7 @@ jobs:
             state-key: workforce-identity.tfstate
             plan-artifact: workforce-identity-plan
             vars-file: terraform.tfvars
-            aws-region: eu-west-3
+            aws-region: eu-west-2
             aws-plan-role: ${{ vars.AWS_WORKFORCE_PLAN_ROLE_ARN }}
             aws-apply-role: ${{ vars.AWS_WORKFORCE_APPLY_ROLE_ARN }}
 
