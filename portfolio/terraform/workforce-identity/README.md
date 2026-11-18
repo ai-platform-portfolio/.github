@@ -10,6 +10,7 @@ provisioning token, credential helper or deployment runner.
 | Root | State key | Lifecycle |
 | --- | --- | --- |
 | `portfolio/terraform/container-app` | `portfolio-hosting.tfstate` | Container App hosting |
+| `portfolio/terraform/ci-access` | `ci-access.tfstate` | Persistent Azure CI grants |
 | `portfolio/terraform/workforce-identity` | `workforce-identity.tfstate` | Persistent operator authentication |
 | GitOps `bootstrap` | Existing bootstrap key | Disposable platform |
 

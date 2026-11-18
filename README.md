@@ -26,7 +26,9 @@ Terraform plan/apply template once per explicit matrix row. Main dispatches appl
 the saved plan; dispatches on other branches only plan. The caller owns the matrix,
 and each row supplies its root, state key and unique plan artifact name.
 
-The initial deployment matrix contains only `portfolio/terraform/workforce-identity`.
+The deployment matrix contains `portfolio/terraform/ci-access` and
+`portfolio/terraform/workforce-identity`. The Azure-only CI access root owns the
+existing publisher's persistent Foundry and backend Blob grants in `ci-access.tfstate`.
 Add a row for another standalone root when it is ready for deployment. The Container
 App remains in `portfolio.yml`: it still builds/scans an image and deploys its exact
 digest. Identity-only changes do not trigger that image workflow.

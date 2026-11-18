@@ -41,6 +41,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - root: portfolio/terraform/ci-access
+            state-key: ci-access.tfstate
+            plan-artifact: ci-access-plan
+            vars-file: terraform.tfvars
+
           - root: portfolio/terraform/workforce-identity
             state-key: workforce-identity.tfstate
             plan-artifact: workforce-identity-plan
