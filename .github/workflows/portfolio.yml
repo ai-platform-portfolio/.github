@@ -78,6 +78,7 @@ jobs:
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
   infrastructure:
+    name: Container App infrastructure
     needs: image
     # Publish/scan must succeed first. PRs plan; main pushes and manual runs apply.
     if: needs.image.outputs.digest != ''
@@ -87,7 +88,7 @@ jobs:
       id-token: write
       pull-requests: write
 
-    uses: ai-platform-portfolio/ops-shared/.github/workflows/terraform.yml@f61b3e4f5c5db462c73581c0b95ddefef14b9569
+    uses: ai-platform-portfolio/ops-shared/.github/workflows/terraform.yml@edbf70b90121ad9ab1d96ddc4b7cad3cabce4bcd
     with:
       root: portfolio/terraform/container-app
       tofu-version: '1.13.9'

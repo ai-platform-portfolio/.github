@@ -32,6 +32,7 @@ jobs:
       tofu-version: '1.13.9'
 
   infrastructure:
+    name: Infrastructure (${{ matrix.root }})
     # PRs plan each root. Pushes only validate; a manual main dispatch can apply.
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: validate
@@ -58,7 +59,7 @@ jobs:
       id-token: write
       pull-requests: write
 
-    uses: ai-platform-portfolio/ops-shared/.github/workflows/terraform.yml@7ac1520a2e68604c8341b77a173b2923fdcdb8a6
+    uses: ai-platform-portfolio/ops-shared/.github/workflows/terraform.yml@edbf70b90121ad9ab1d96ddc4b7cad3cabce4bcd
     with:
       root: ${{ matrix.root }}
       state-key: ${{ matrix.state-key }}
