@@ -33,8 +33,7 @@ jobs:
 
   infrastructure:
     name: Infrastructure (${{ matrix.root }})
-    # PRs plan each root. Pushes only validate; a manual main dispatch can apply.
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    # PRs plan each root; main pushes and manual main runs apply.
     needs: validate
 
     strategy:

@@ -87,7 +87,7 @@ Complete and validate the prerequisites before claiming readiness.
 ## Infrastructure pipeline
 
 The repository's `.github/workflows/infra.yml` validates both Terraform subroots
-offline, and plans this root on PRs or manual dispatch through a caller-owned matrix and the
+offline, and plans this root through a caller-owned matrix and the
 shared ops-shared Terraform workflow. It passes `workforce-identity.tfstate` and
 a unique `workforce-identity-plan` artifact. The Container App's image/deployment
 flow stays in `portfolio.yml`, using its own root and unchanged hosting state key.
@@ -100,11 +100,12 @@ write this London Identity Center instance and Identity Store. Neither can
 change IAM trust or its own permissions. Bootstrap or change these CI roles once
 with an existing AWS administrator, using the same root/state. The existing Azure OIDC identity also needs backend access and
 Entra Graph read/application-management permissions. The workflow does not create
-trust/permissions or reuse the local user's SSO session. Main dispatches apply a
-saved plan; PRs and other branches only plan. Main pushes only validate offline.
+trust/permissions or reuse the local user's SSO session. Main pushes and manual
+main dispatches apply the saved plan; PRs and manual runs on other branches only
+plan.
 The matrix pins the source-labelled plan revision from
 [ops-shared PR31](https://github.com/ai-platform-portfolio/ops-shared/pull/31).
-Native AWS authentication CI is not yet proved.
+Native AWS plan authentication has passed CI; apply remains unverified.
 
 ## Boundaries and acceptance
 
