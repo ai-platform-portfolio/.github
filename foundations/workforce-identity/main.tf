@@ -31,7 +31,7 @@ data "aws_iam_policy_document" "bootstrap" {
 }
 
 module "entra" {
-  source = "git::https://github.com/ai-platform-portfolio/terraform.git//modules/azure/saml-application?ref=3422c11e8f7fe6a09090318cb5c7415a039f8370"
+  source = "git::https://github.com/ai-platform-portfolio/terraform.git//modules/azure/saml-application?ref=25831afa415fafda7af551b69acba4eaa182ff43"
 
   display_name  = var.application.name
   template_name = var.application.template_name
@@ -66,7 +66,7 @@ resource "aws_identitystore_user" "operators" {
 }
 
 module "aws_access" {
-  source = "git::https://github.com/ai-platform-portfolio/terraform.git//modules/aws/identity-center-access?ref=3422c11e8f7fe6a09090318cb5c7415a039f8370"
+  source = "git::https://github.com/ai-platform-portfolio/terraform.git//modules/aws/identity-center-access?ref=25831afa415fafda7af551b69acba4eaa182ff43"
 
   instance_arn     = var.identity_center.instance_arn
   account_id       = var.bootstrap_access.account_id

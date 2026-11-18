@@ -77,10 +77,9 @@ No login is invoked automatically by this repository.
    ```
 
 The source currently contains example inputs, not live instance metadata, and is
-not deployed. Its module pin is the reviewed candidate in
+not deployed. Both shared modules are pinned to the verified merge revision of
 [Terraform PR32](https://github.com/ai-platform-portfolio/terraform/pull/32).
-Merge that library change first and adopt its verified merge revision before
-merging this consumer. Complete and validate the prerequisites before claiming readiness.
+Complete and validate the prerequisites before claiming readiness.
 
 ## Boundaries and acceptance
 
