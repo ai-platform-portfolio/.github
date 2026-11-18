@@ -9,8 +9,9 @@ variable "backend_storage_account" {
 variable "ci_publisher" {
   description = "Existing CI principal and its explicitly managed Azure role assignments."
   type = object({
-    principal_id     = string
-    graph_read_roles = optional(set(string), [])
+    principal_id      = string
+    graph_read_roles  = optional(set(string), [])
+    graph_write_roles = optional(set(string), [])
     role_assignments = map(object({
       scope                = string
       role_definition_name = string

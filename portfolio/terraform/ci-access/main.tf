@@ -27,10 +27,19 @@ resource "azurerm_role_assignment" "ci_publisher" {
   principal_type       = "ServicePrincipal"
 }
 
-# Foundation plans need user metadata and application configuration. These are
-# read-only Graph roles; changing these grants requires a directory administrator.
+# Foundation plans need read-only user metadata and application configuration.
 resource "azuread_app_role_assignment" "ci_read" {
   for_each = var.ci_publisher.graph_read_roles
+
+  principal_object_id = var.ci_publisher.principal_id
+  resource_object_id  = data.azuread_service_principal.microsoft_graph.object_id
+  app_role_id         = data.azuread_service_principal.microsoft_graph.app_role_ids[each.value]
+}
+
+# Explicitly approved for automated workforce application changes. The assignment
+# grant is tenant-wide; it must be bootstrapped by a directory administrator.
+resource "azuread_app_role_assignment" "ci_write" {
+  for_each = var.ci_publisher.graph_write_roles
 
   principal_object_id = var.ci_publisher.principal_id
   resource_object_id  = data.azuread_service_principal.microsoft_graph.object_id

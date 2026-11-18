@@ -35,7 +35,7 @@ module "entra" {
 
   display_name  = var.application.name
   template_name = var.application.template_name
-  owners        = [for operator in data.azuread_user.operators : operator.object_id]
+  owners        = concat([for operator in data.azuread_user.operators : operator.object_id], tolist(var.application.additional_owners))
   service_provider = {
     entity_id = var.identity_center.entity_id
     acs_url   = var.identity_center.acs_url
