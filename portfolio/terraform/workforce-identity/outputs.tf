@@ -1,3 +1,8 @@
+output "ci_role_arns" {
+  description = "Non-secret role references for the GitHub caller variables."
+  value       = { for phase, role in aws_iam_role.ci : phase => role.arn }
+}
+
 output "enterprise_application_object_id" {
   description = "Enterprise application to use for the one-time SAML metadata exchange."
   value       = module.entra.principal_id

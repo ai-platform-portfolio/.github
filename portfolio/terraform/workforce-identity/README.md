@@ -17,7 +17,8 @@ provisioning token, credential helper or deployment runner.
 Use the existing persistent Azure backend account/container with a separate key.
 Neither `gitops make down` nor a hosting-root destroy traverses this root. Do not
 destroy this foundation as part of application teardown. No existing account,
-Identity Center instance, registration or CI role is adopted by this code.
+Identity Center instance or registration is adopted by this code. It owns two
+GitHub OIDC CI roles and reuses the existing GitHub OIDC provider.
 
 ## Initial setup
 
@@ -77,8 +78,8 @@ No login is invoked automatically by this repository.
    AWS_PROFILE=model-gateway make aks-plan
    ```
 
-The source currently contains example inputs, not live instance metadata, and is
-not deployed. Both shared modules are pinned to the verified merge revision of
+Tracked inputs contain the actual London instance and the exact service-provider
+metadata supplied by AWS. Both shared modules are pinned to the verified merge revision of
 [Terraform PR32](https://github.com/ai-platform-portfolio/terraform/pull/32).
 Complete and validate the prerequisites before claiming readiness.
 
@@ -90,17 +91,18 @@ shared ops-shared Terraform workflow. It passes `workforce-identity.tfstate` and
 a unique `workforce-identity-plan` artifact. The Container App's image/deployment
 flow stays in `portfolio.yml`, using its own root and unchanged hosting state key.
 
-Before dispatch, commit actual `terraform.tfvars` metadata and configure existing
-CI roles in repository variables `AWS_WORKFORCE_PLAN_ROLE_ARN` and
+The Terraform-owned CI roles are referenced by repository variables `AWS_WORKFORCE_PLAN_ROLE_ARN` and
 `AWS_WORKFORCE_APPLY_ROLE_ARN`. Match the matrix AWS region to the instance home
-region. Those roles must trust the actual GitHub environment subjects for
-`central-plan` / `central-apply` and have the required Identity Center/Identity
-Store permissions. The existing Azure OIDC identity also needs backend access and
+region. The roles trust only this repository’s immutable GitHub subjects for
+`central-plan` / `central-apply`. Both can read the foundation; only apply can
+write this London Identity Center instance and Identity Store. Neither can
+change IAM trust or its own permissions. Bootstrap or change these CI roles once
+with an existing AWS administrator, using the same root/state. The existing Azure OIDC identity also needs backend access and
 Entra Graph read/application-management permissions. The workflow does not create
 trust/permissions or reuse the local user's SSO session. Main dispatches apply a
 saved plan; PRs and other branches only plan. Main pushes only validate offline.
-The matrix pins the verified merge revision of
-[ops-shared PR30](https://github.com/ai-platform-portfolio/ops-shared/pull/30).
+The matrix pins the source-labelled plan revision from
+[ops-shared PR31](https://github.com/ai-platform-portfolio/ops-shared/pull/31).
 Native AWS authentication CI is not yet proved.
 
 ## Boundaries and acceptance

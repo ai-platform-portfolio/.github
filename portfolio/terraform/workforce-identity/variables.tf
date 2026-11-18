@@ -1,3 +1,21 @@
+variable "github_subject_prefix" {
+  description = "Actual immutable GitHub OIDC repository subject prefix."
+  type        = string
+}
+
+variable "ci_roles" {
+  description = "Separate existing-environment CI roles for foundation plan and apply."
+  type = map(object({
+    name        = string
+    environment = string
+  }))
+
+  validation {
+    condition     = toset(keys(var.ci_roles)) == toset(["plan", "apply"])
+    error_message = "Declare exactly the plan and apply roles."
+  }
+}
+
 variable "identity_center" {
   description = "Existing account-access Identity Center instance and its SAML service-provider metadata."
   type = object({

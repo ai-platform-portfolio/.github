@@ -25,3 +25,17 @@ bootstrap_access = {
   gateway_role    = "management-litellm-bedrock"
   workload_region = "eu-west-3"
 }
+
+github_subject_prefix = "repo:ai-platform-portfolio@334196300/.github@1390504897"
+
+ci_roles = {
+  plan = {
+    name        = "portfolio-workforce-plan"
+    environment = "central-plan"
+  }
+
+  apply = {
+    name        = "portfolio-workforce-apply"
+    environment = "central-apply"
+  }
+}
