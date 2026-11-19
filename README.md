@@ -50,8 +50,8 @@ and the documented SAML setup are completed and a real plan is reviewed.
 
 [`portfolio/image/`](portfolio/image/) contains the website and its small Python
 API. [`portfolio/terraform/container-app/`](portfolio/terraform/container-app/) owns independent Azure Container
-Apps hosting at `https://portfolio.dev.michaelalinks.com`. Initial deployment is
-pending; a successful build or plan is not evidence that the site is live.
+Apps hosting at `https://portfolio.dev.michaelalinks.com`. The production app is
+deployed independently of AKS.
 
 The site stays available during the disposable AKS lifecycle. It has no dependency
 on an in-cluster database, ingress, Argo CD or cluster credentials. Its own resource
@@ -64,8 +64,61 @@ The existing `localacrk8s` registry and DNS zone are persistent prerequisites.
 workflows. Same-repository PRs publish scanned preview images and plan their actual
 digests. Forks run tests, offline OpenTofu validation and build-only image scans.
 Main pushes publish a scanned image and automatically invoke **OpenTofu
-plan/apply**. Manual runs from `main` also deploy; PRs only plan. Each invocation builds the selected source and deploys its
+plan/apply**. Manual runs from `main` also deploy; PRs only plan production. Each invocation builds the selected source and deploys its
 immutable image digest. No stored registry password or Azure client secret is used.
+
+### Pull request previews
+
+Same-repository PRs also call the shared `terraform-preview.yml` workflow after
+the existing tests, image publication and vulnerability scan succeed. It deploys
+the exact image digest into a separate Container App and posts its Azure-generated
+HTTPS URL in one updated PR comment and a transient GitHub deployment. Fork PRs
+remain validation/build-only.
+
+[`portfolio/terraform/preview/`](portfolio/terraform/preview/) is a small native
+caller of the existing shared app and identity modules. Its intent is the existing
+hosting environment, registry and cluster-status target. Those modules retain
+ownership of app/probe/registry wiring and resource defaults: 0.25 vCPU, 0.5 GiB,
+replicas 0–1, secure HTTP ingress and no custom DNS/certificate resources.
+
+The shared workflow generates `pv-<repository-ID-hash>-pr-<number>` and an isolated
+`previews/<name>.tfstate` key. Commits update the same preview; another repository
+or PR receives a different identity and state. The root always comes from the
+event's trusted base commit, not the PR checkout. Consequently, changes to preview
+infrastructure itself require merging before they affect previews; the onboarding
+PR skips deployment while that root is absent on its base.
+
+Each app has its own managed identity with registry-scoped AcrPull and
+subscription-scoped **Reader**, allowing status observation across AKS resource
+group deletion/recreation. Reader exposes subscription resource metadata, but
+does not grant mutation or Kubernetes access. Preview code never receives the
+production app's Contributor identity. The existing CI identity remains a
+privileged deployer; same-repository workflow changes are trusted maintainer code.
+
+The close-only `portfolio-preview-cleanup.yml` runs from trusted base code through
+`pull_request_target`; it never checks out or executes PR source. It has no path
+filter and needs no image rebuild. Deploy and cleanup share a non-cancelling lock
+with GitHub's native queue of up to 100 pending runs,
+check current PR state/head before mutation and retire stale deployment records.
+Close/merge destroys the app before its grants and identity, preserving production,
+the shared environment, registry and backend. Rerun the failed close workflow to
+retry cleanup. Empty state records and published images remain; there is no
+registry purge that could delete an image also used by production.
+
+Previews have public generated HTTPS endpoints. They share the existing Container
+Apps environment's networking/resources and are intended for trusted portfolio
+changes; this is not an environment-level production/test isolation boundary.
+Zero replicas reduces idle compute cost but incurs cold starts; active traffic,
+builds and image storage remain chargeable.
+
+Merge the shared preview workflow first and use its reviewed immutable SHA in both
+callers. Then merge this onboarding change. A subsequent PR provides live
+acceptance: check its link, update it, run two PRs concurrently, and close/reopen
+them to verify isolated deletion/recreation. Local plans and CI validation do not
+establish those hosted outcomes. Existing Azure OIDC, backend and role-assignment
+permissions are required; no new PAT, stored registry password or client secret is
+introduced. The default `central-apply` environment must admit these trusted PR
+events; its name alone does not establish a protection policy.
 
 The OpenTofu shared workflows are pinned to their actual merged revision. Merge
 the Container Apps module-library PR first, then adopt its actual merge SHA in

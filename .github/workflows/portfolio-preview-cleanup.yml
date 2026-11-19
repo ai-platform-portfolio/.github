@@ -1,0 +1,31 @@
+name: Remove portfolio preview
+
+on:
+  # Run from the trusted default branch, including after branch deletion and
+  # for PRs whose final changes do not match the image workflow's path filters.
+  pull_request_target:
+    types: [closed]
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+      deployments: write
+
+    uses: ai-platform-portfolio/ops-shared/.github/workflows/terraform-preview.yml@1897a48d7d346b4a9bc0b30cf7442ad37a410986
+    with:
+      root: portfolio/terraform/preview
+    secrets:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      TF_BACKEND_RESOURCE_GROUP: ${{ secrets.TF_BACKEND_RESOURCE_GROUP }}
+      TF_BACKEND_RESOURCE_NAME: ${{ secrets.TF_BACKEND_RESOURCE_NAME }}
+      TF_BACKEND_CONTAINER: ${{ secrets.TF_BACKEND_CONTAINER }}
