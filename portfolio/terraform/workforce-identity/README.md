@@ -67,16 +67,40 @@ No login is invoked automatically by this repository.
    one-hour AWS role credentials, which refresh automatically. Check whether
    Entra includes SAML `SessionNotOnOrAfter`: that can shorten the effective
    session. Apply the setting before the initial CLI sign-in.
-6. Review `tofu output -raw aws_config` and merge those two sections into
-   `~/.aws/config`. Replace the old `model-gateway` profile's `login_session` entry;
-   keep unrelated profiles. Do not write credential values into the profile.
+6. Install the generated native profile from this initialized Terraform root:
+
+   ```sh
+   tofu output -raw aws_config | python3 configure_aws.py
+   ```
+
+   The installer replaces only the generated profile and its named SSO session,
+   removing the obsolete `login_session` entry. Other profiles and their comments
+   are preserved. It validates input before an atomic mode-0600 replacement and
+   is safe to rerun after foundation updates or on a new workstation. No account,
+   role, portal URL or region is copied into the installer; Terraform output owns
+   those choices. It respects `AWS_CONFIG_FILE` or `--config /path/to/config`.
+   Python uses only its standard library; the native `aws configure set` command
+   cannot atomically replace these two sections and remove the obsolete entry.
+   No credentials or tokens are installed, and no login command is run.
+
+7. Complete initial authorization explicitly, outside deployment:
 
    ```sh
    aws sso login --profile model-gateway
    aws sts get-caller-identity --profile model-gateway
    # In the gitops checkout, when startup is separately authorised:
-   AWS_PROFILE=model-gateway make aks-plan
+   make aks-plan
    ```
+
+   GitOps defaults to this platform's `model-gateway` profile. Native AWS providers
+   refresh cached SSO tokens and short-lived role credentials within the effective
+   session lifetime. Missing/expired authorization makes lifecycle preflight stop
+   before Terraform init/apply or Kubernetes teardown; it never invokes `aws login`,
+   `aws sso login`, or a browser fallback. Use `AWS_PROFILE=other-profile` to select
+   another native profile, or `AWS_PROFILE=` for environment/workload credentials.
+   Installing profile metadata cannot establish the initial SSO session. The AWS
+   console prerequisites above and that first authorization must be completed
+   before a plain GitOps `make aks-up` can pass cold-start acceptance.
 
 Tracked inputs contain the actual London instance and the exact service-provider
 metadata supplied by AWS. The AWS module uses merged
@@ -105,7 +129,15 @@ main dispatches apply the saved plan; PRs and manual runs on other branches only
 plan.
 The matrix pins the source-labelled plan revision from
 [ops-shared PR31](https://github.com/ai-platform-portfolio/ops-shared/pull/31).
-Native AWS plan authentication has passed CI; apply remains unverified.
+CI's OIDC authentication is separate from local operator SSO and does not prove
+local sign-in or credential refresh.
+
+The infrastructure workflow also runs the profile installer's standard-library
+tests before any infrastructure job. Locally:
+
+```sh
+python3 -m unittest discover -s portfolio/terraform/workforce-identity -p 'test_*.py'
+```
 
 ## Boundaries and acceptance
 

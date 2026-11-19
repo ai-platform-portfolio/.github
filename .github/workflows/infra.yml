@@ -31,10 +31,26 @@ jobs:
       terraform-directories: '["portfolio/terraform/*"]'
       tofu-version: '1.13.9'
 
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.13'
+
+      - name: Verify repeatable native AWS profile installation
+        run: python -m unittest discover -s portfolio/terraform/workforce-identity -p 'test_*.py'
+
   infrastructure:
     name: Infrastructure (${{ matrix.root }})
     # PRs plan each root; main pushes and manual main runs apply.
-    needs: validate
+    needs: [validate, test]
 
     strategy:
       fail-fast: false
