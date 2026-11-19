@@ -15,9 +15,10 @@ operators = {
 application = {
   additional_owners = ["34a1cc81-438a-4359-8d33-7a00a56e8d2a"]
 
-  name          = "portfolio-aws-identity-center"
-  template_name = "AWS IAM Identity Center (successor to AWS Single Sign-On)"
-  role_name     = "User"
+  name           = "portfolio-aws-identity-center"
+  template_name  = "AWS IAM Identity Center (successor to AWS Single Sign-On)"
+  role_name      = "User"
+  name_id_source = "localuserprincipalname"
 }
 
 bootstrap_access = {

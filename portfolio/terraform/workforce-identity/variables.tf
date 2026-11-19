@@ -44,6 +44,7 @@ variable "application" {
     name              = string
     template_name     = string
     role_name         = string
+    name_id_source    = optional(string)
     additional_owners = optional(set(string), [])
   })
 }

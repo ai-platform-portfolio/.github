@@ -31,11 +31,12 @@ data "aws_iam_policy_document" "bootstrap" {
 }
 
 module "entra" {
-  source = "git::https://github.com/ai-platform-portfolio/terraform.git//modules/azure/saml-application?ref=d3288880d29671f5e4fe58dd61e1ec0a74d36bf2"
+  source = "git::https://github.com/ai-platform-portfolio/terraform.git//modules/azure/saml-application?ref=006eadc2e50069051f3c3099873e61655d338070"
 
-  display_name  = var.application.name
-  template_name = var.application.template_name
-  owners        = concat([for operator in data.azuread_user.operators : operator.object_id], tolist(var.application.additional_owners))
+  display_name   = var.application.name
+  template_name  = var.application.template_name
+  name_id_source = var.application.name_id_source
+  owners         = concat([for operator in data.azuread_user.operators : operator.object_id], tolist(var.application.additional_owners))
   service_provider = {
     entity_id = var.identity_center.entity_id
     acs_url   = var.identity_center.acs_url

@@ -57,7 +57,13 @@ No login is invoked automatically by this repository.
 4. Open the resulting Entra enterprise application. Verify that the generated
    signing certificate thumbprint matches `tofu output -raw
    signing_certificate_thumbprint` and activate it if needed. Verify the gallery
-   NameID uses `user.userprincipalname`, matching the provisioned AWS `user_name`.
+   NameID uses `user.localuserprincipalname` with email-address format, matching
+   the tenant-local UPN used for the provisioned AWS `user_name`. This source is
+   declared by `application.name_id_source` in tfvars and owned by the reusable
+   SAML module's native claims mapping policy. It avoids ambiguous external-account
+   resolution by `user.userprincipalname`. Normal Microsoft sign-in still uses
+   the user's personal/organizational email; the internal `#EXT#` UPN is not a
+   password-login instruction, and the AWS root-account email is unrelated.
    Download its Federation Metadata XML and complete AWS's external identity-source
    configuration with that metadata. This exchange is an AWS console prerequisite,
    not an automated Terraform resource.
@@ -83,6 +89,18 @@ metadata supplied by AWS. The AWS module uses merged
 [Terraform PR32](https://github.com/ai-platform-portfolio/terraform/pull/32); the
 SAML module includes the dependency-order repair from Terraform PR33.
 Complete and validate the prerequisites before claiming readiness.
+
+The optional NameID policy retains basic claims and becomes authoritative over
+the portal's Custom Claims Policy; portal claim editing no longer controls token
+issuance while it is assigned. This is native AzureAD provider configuration, not
+an authentication script or additional provider. Before activation, merge/apply
+the approved `Policy.Read.All` and `Policy.ReadWrite.ApplicationConfiguration`
+grants from persistent `ci-access`, then adopt the module/caller. Microsoft documents
+both permissions for policy reads due to a known API issue. They grant tenant-level
+policy authority and are separate from the scoped AWS runtime/bootstrap role.
+Check the workforce plan contains only the new policy/assignment; no user,
+permission-set, certificate or application replacement is expected. Recheck native
+SSO after activation before claiming the Terraform-owned policy accepted live.
 
 ## Infrastructure pipeline
 
