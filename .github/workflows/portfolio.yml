@@ -71,7 +71,7 @@ jobs:
       contents: read
       id-token: write
 
-    uses: ai-platform-portfolio/ops-shared/.github/workflows/docker.yml@de77993d419a2322928d8b6016c20806224737f9
+    uses: ai-platform-portfolio/ops-shared/.github/workflows/docker.yml@cae5b61a86f37f8d52132ec358537b60d485f360
     with:
       image: portfolio/site
       context: portfolio/image
