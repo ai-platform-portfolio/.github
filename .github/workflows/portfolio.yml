@@ -7,6 +7,7 @@ on:
       - portfolio/terraform/container-app/**
       - profile/README.md
       - .github/workflows/portfolio.yml
+      - .github/workflows/portfolio-preview-cleanup.yml
 
   push:
     branches: [main]
@@ -65,13 +66,14 @@ jobs:
       contents: read
       id-token: write
 
-    uses: ai-platform-portfolio/ops-shared/.github/workflows/docker.yml@17a409d93bb7a8d697ee33690adfc96bc9a8651d
+    uses: ai-platform-portfolio/ops-shared/.github/workflows/docker.yml@95c549c8d93cb6cbdf57fcebbbab2f82b9f2b2e3
     with:
       image: portfolio/site
       context: portfolio/image
       tag: ${{ github.event_name == 'pull_request' && format('preview-{0}-{1}', github.event.pull_request.number, github.sha) || '' }}
       publish-preview: true
       scan: true
+      build-engine: ${{ github.event_name == 'pull_request' && 'acr' || 'docker' }}
     secrets:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -101,3 +103,36 @@ jobs:
       TF_BACKEND_RESOURCE_GROUP: ${{ secrets.TF_BACKEND_RESOURCE_GROUP }}
       TF_BACKEND_RESOURCE_NAME: ${{ secrets.TF_BACKEND_RESOURCE_NAME }}
       TF_BACKEND_CONTAINER: ${{ secrets.TF_BACKEND_CONTAINER }}
+
+  preview:
+    needs: image
+    if: github.event_name == 'pull_request' && needs.image.outputs.digest != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: central-apply
+
+    concurrency:
+      group: portfolio-preview-${{ github.event.pull_request.number }}
+      queue: max
+      cancel-in-progress: false
+
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+
+    steps:
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - uses: ai-platform-portfolio/ops-shared/.github/actions/container-app-preview@95c549c8d93cb6cbdf57fcebbbab2f82b9f2b2e3
+        with:
+          resource-group: rg-portfolio-hosting
+          environment: portfolio-hosting
+          registry: localacrk8s
+          image: localacrk8s.azurecr.io/portfolio/site@${{ needs.image.outputs.digest }}
+          reader-scope: /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          env-vars: ${{ format('{{"AKS_RESOURCE_GROUP":"rg-management","AKS_NAME":"aks-management","AZURE_SUBSCRIPTION_ID":"{0}"}}', secrets.AZURE_SUBSCRIPTION_ID) }}

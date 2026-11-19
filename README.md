@@ -50,8 +50,8 @@ and the documented SAML setup are completed and a real plan is reviewed.
 
 [`portfolio/image/`](portfolio/image/) contains the website and its small Python
 API. [`portfolio/terraform/container-app/`](portfolio/terraform/container-app/) owns independent Azure Container
-Apps hosting at `https://portfolio.dev.michaelalinks.com`. Initial deployment is
-pending; a successful build or plan is not evidence that the site is live.
+Apps hosting at `https://portfolio.dev.michaelalinks.com`. Production is deployed
+independently of AKS.
 
 The site stays available during the disposable AKS lifecycle. It has no dependency
 on an in-cluster database, ingress, Argo CD or cluster credentials. Its own resource
@@ -66,6 +66,35 @@ digests. Forks run tests, offline OpenTofu validation and build-only image scans
 Main pushes publish a scanned image and automatically invoke **OpenTofu
 plan/apply**. Manual runs from `main` also deploy; PRs only plan. Each invocation builds the selected source and deploys its
 immutable image digest. No stored registry password or Azure client secret is used.
+
+### PR previews
+
+Same-repository PRs select `build-engine: acr` in the shared Docker workflow.
+The checked-out source is uploaded to standard ACR Tasks for the container build;
+application tests and the existing Trivy vulnerability gate stay in their current
+workflow. GitHub uses Azure OIDC; ACR needs no GitHub PAT or source webhook.
+Forks remain validation/build-only. Production retains its existing build and
+OpenTofu delivery path.
+
+After a successful scan, the shared native Container Apps action creates or
+updates `pv-<repository-id>-pr-<number>` in the existing environment and posts its
+generated HTTPS URL. Each preview has a dedicated identity with AcrPull and
+subscription Reader for status observation across AKS deletion/recreation. Reader
+exposes subscription resource metadata but grants no mutation rights. Production's
+Contributor identity is never reused. Previews scale from zero to one replica
+at0.25vCPU/0.5GiB, so initial requests may encounter a cold start. They are public
+and share the existing environment's resources/networking.
+
+The unfiltered close-only workflow invokes the same action without building an
+image or checking out PR code. It deletes the owned app, grants and identity,
+preserving production, ACR and the environment. Deploy/cleanup share a native
+queue; stale builds cannot overwrite a newer head or recreate a closed PR.
+Rerun failed cleanup to retry. Published images remain under independent retention.
+No preview Terraform root, backend key, custom DNS or dedicated build pool exists.
+Merge the shared capability first and adopt its merge SHA in both callers. Close
+automation becomes available after this onboarding workflow merges; if onboarding
+is abandoned, explicitly remove its acceptance preview with the shared native
+action. Full create/update/close/reopen acceptance is distinct from source CI.
 
 The OpenTofu shared workflows are pinned to their actual merged revision. Merge
 the Container Apps module-library PR first, then adopt its actual merge SHA in

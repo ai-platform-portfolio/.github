@@ -1,0 +1,39 @@
+name: Remove portfolio preview
+
+on:
+  # Trusted base workflow; no PR checkout or image build is needed for cleanup.
+  pull_request_target:
+    types: [closed]
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: central-apply
+
+    concurrency:
+      group: portfolio-preview-${{ github.event.pull_request.number }}
+      queue: max
+      cancel-in-progress: false
+
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+
+    steps:
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - uses: ai-platform-portfolio/ops-shared/.github/actions/container-app-preview@95c549c8d93cb6cbdf57fcebbbab2f82b9f2b2e3
+        with:
+          resource-group: rg-portfolio-hosting
+          environment: portfolio-hosting
+          registry: localacrk8s
