@@ -66,7 +66,7 @@ jobs:
       contents: read
       id-token: write
 
-    uses: ai-platform-portfolio/ops-shared/.github/workflows/docker.yml@95c549c8d93cb6cbdf57fcebbbab2f82b9f2b2e3
+    uses: ai-platform-portfolio/ops-shared/.github/workflows/docker.yml@d3e4f43571ea2b5979a7e53cd59bd87150fa28f1
     with:
       image: portfolio/site
       context: portfolio/image
@@ -128,7 +128,7 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - uses: ai-platform-portfolio/ops-shared/.github/actions/container-app-preview@95c549c8d93cb6cbdf57fcebbbab2f82b9f2b2e3
+      - uses: ai-platform-portfolio/ops-shared/.github/actions/container-app-preview@d3e4f43571ea2b5979a7e53cd59bd87150fa28f1
         with:
           resource-group: rg-portfolio-hosting
           environment: portfolio-hosting
