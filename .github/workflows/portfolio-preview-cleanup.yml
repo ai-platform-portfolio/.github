@@ -32,7 +32,7 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - uses: ai-platform-portfolio/ops-shared/.github/actions/container-app-preview@f4164237f5408d8ae5ed85257f6e3eeb6b6d3615
+      - uses: ai-platform-portfolio/ops-shared/.github/actions/container-app-preview@2bd35ab9f6a61579a881fb7c962a44f4507dce42
         with:
           resource-group: rg-portfolio-hosting
           environment: portfolio-hosting
