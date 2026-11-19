@@ -71,7 +71,7 @@ jobs:
       contents: read
       id-token: write
 
-    uses: ai-platform-portfolio/ops-shared/.github/workflows/docker.yml@cae5b61a86f37f8d52132ec358537b60d485f360
+    uses: ai-platform-portfolio/ops-shared/.github/workflows/docker.yml@35f848c7ac4fb5ba7765a8d4298a2d7a9289f340
     with:
       image: portfolio/site
       context: portfolio/image
@@ -137,7 +137,7 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - uses: ai-platform-portfolio/ops-shared/.github/actions/container-app-preview@fa832bd9329b93fedbe261f2600ac35d41b5b10f
+      - uses: ai-platform-portfolio/ops-shared/.github/actions/container-app-preview@813eb801772ec491f1c3f0147a56464e5899da31
         with:
           resource-group: rg-portfolio-hosting
           environment: portfolio-hosting
@@ -168,7 +168,7 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - uses: ai-platform-portfolio/ops-shared/.github/actions/container-app-preview-job@fa832bd9329b93fedbe261f2600ac35d41b5b10f
+      - uses: ai-platform-portfolio/ops-shared/.github/actions/container-app-preview-job@813eb801772ec491f1c3f0147a56464e5899da31
         with:
           name: portfolio-preview-cleanup
           resource-group: rg-portfolio-hosting
