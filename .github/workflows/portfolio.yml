@@ -137,11 +137,42 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - uses: ai-platform-portfolio/ops-shared/.github/actions/container-app-preview@de77993d419a2322928d8b6016c20806224737f9
+      - uses: ai-platform-portfolio/ops-shared/.github/actions/container-app-preview@fa832bd9329b93fedbe261f2600ac35d41b5b10f
         with:
           resource-group: rg-portfolio-hosting
           environment: portfolio-hosting
           registry: localacrk8s
           image: ${{ needs.image.outputs.digest && format('localacrk8s.azurecr.io/portfolio/site@{0}', needs.image.outputs.digest) || '' }}
-          reader-scope: /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          identity: portfolio-hosting
           env-vars: ${{ format('{{"AKS_RESOURCE_GROUP":"rg-management","AKS_NAME":"aks-management","AZURE_SUBSCRIPTION_ID":"{0}"}}', secrets.AZURE_SUBSCRIPTION_ID) }}
+
+  cleanup-job:
+    needs: [image, infrastructure]
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request_target'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: central-apply
+
+    concurrency:
+      group: portfolio-preview-cleanup-job
+      cancel-in-progress: false
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - uses: ai-platform-portfolio/ops-shared/.github/actions/container-app-preview-job@fa832bd9329b93fedbe261f2600ac35d41b5b10f
+        with:
+          name: portfolio-preview-cleanup
+          resource-group: rg-portfolio-hosting
+          environment: portfolio-hosting
+          identity: portfolio-hosting
+          registry: localacrk8s
+          image: ${{ format('localacrk8s.azurecr.io/portfolio/site@{0}', needs.image.outputs.digest) }}

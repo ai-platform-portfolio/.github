@@ -78,24 +78,31 @@ OpenTofu delivery path.
 
 After a successful scan, the shared native Container Apps action creates or
 updates `pv-<repository-id>-pr-<number>` in the existing environment and posts its
-generated HTTPS URL. Each preview has a dedicated identity with AcrPull and
-subscription Reader for status observation across AKS deletion/recreation. Reader
-exposes subscription resource metadata but grants no mutation rights. Production's
-Contributor identity is never reused. Previews scale from zero to one replica
-at0.25vCPU/0.5GiB, so initial requests may encounter a cold start. They are public
-and share the existing environment's resources/networking.
+generated HTTPS URL. Previews reuse the permanent `portfolio-hosting` managed
+identity, including its existing Contributor and AcrPull grants, as explicitly
+chosen for this portfolio. Preview code therefore has the same Azure permissions
+as production. No preview identities or role assignments are created or deleted.
+Previews scale from zero to one replica at0.25vCPU/0.5GiB and share the existing
+public environment; initial requests may encounter a cold start.
 
-The same Portfolio workflow handles unfiltered close-only events with its single
-preview job; it skips tests/builds and never checks out PR code on close. It deletes
-the owned app, grants and identity, preserving production, ACR and the environment.
-Deploy/cleanup share a native queue; stale builds cannot overwrite a newer head
-or recreate a closed PR.
-Rerun failed cleanup to retry. Published images remain under independent retention.
-No preview Terraform root, backend key, custom DNS or dedicated build pool exists.
-Merge the shared capability first and adopt its merge SHA in the caller. Close
-automation becomes available after this onboarding workflow merges; if onboarding
-is abandoned, explicitly remove its acceptance preview with the shared native
-action. Full create/update/close/reopen acceptance is distinct from source CI.
+The same workflow handles unfiltered close-only events without checking out PR
+code. It deletes only the owned app. A shared queue and live PR checks prevent
+stale builds from replacing a newer head or recreating a closed preview.
+
+An Azure Container Apps job, `portfolio-preview-cleanup`, runs at02:00UTC as a
+fallback for missed close events. It uses the same image, environment and managed
+identity, starting `python /app/preview_cleanup.py` instead of the web server.
+The shared script is included from an immutable source with a verified checksum.
+Only apps whose name/tags match a verified closed PR in this organization are
+deleted. Open PRs and failed/unknown GitHub lookups remain. The job has no running
+replica between executions, a five-minute timeout and one retry. Successful main
+delivery updates its image; production delivery remains the existing OpenTofu path.
+
+Published images have independent retention. No preview Terraform root, backend
+key, custom DNS, dedicated build pool or GitHub nightly workflow is added.
+Merge the shared capability first and adopt its merge SHA before merging this
+caller. Close-event automation starts after the caller merges; the Azure fallback
+is independent once configured. Source CI and live acceptance are separate.
 
 The OpenTofu shared workflows are pinned to their actual merged revision. Merge
 the Container Apps module-library PR first, then adopt its actual merge SHA in

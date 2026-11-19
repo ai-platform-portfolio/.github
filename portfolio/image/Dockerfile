@@ -15,6 +15,10 @@ RUN pip install --no-cache-dir --require-hashes -r requirements.txt \
 COPY app.py .
 COPY static ./static
 
+# Reuse the shared cleanup entrypoint in the web/job image.
+ADD --chown=portfolio:portfolio https://raw.githubusercontent.com/ai-platform-portfolio/ops-shared/fa832bd9329b93fedbe261f2600ac35d41b5b10f/.github/actions/container-app-preview/preview_cleanup.py /app/preview_cleanup.py
+RUN echo "3fede89e27426dd8cdff797019f49dbdcadd1b1d4da9412b36704024c0aa1a17  /app/preview_cleanup.py" | sha256sum -c -
+
 USER portfolio
 
 EXPOSE 8080
