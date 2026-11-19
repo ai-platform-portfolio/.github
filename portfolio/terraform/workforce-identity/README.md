@@ -93,9 +93,11 @@ Complete and validate the prerequisites before claiming readiness.
 The optional NameID policy retains basic claims and becomes authoritative over
 the portal's Custom Claims Policy; portal claim editing no longer controls token
 issuance while it is assigned. This is native AzureAD provider configuration, not
-an authentication script or additional provider. Before activation, merge/apply
+an authentication script or additional provider. Before activation, establish
 the approved `Policy.Read.All` and `Policy.ReadWrite.ApplicationConfiguration`
-grants from persistent `ci-access`, then adopt the module/caller. Microsoft documents
+grants through persistent `ci-access`. An operator apply of that root records the
+grants in `ci-access.tfstate`; keep their declaration there rather than importing
+them into workforce state. Microsoft documents
 both permissions for policy reads due to a known API issue. They grant tenant-level
 policy authority and are separate from the scoped AWS runtime/bootstrap role.
 Check the workforce plan contains only the new policy/assignment; no user,
