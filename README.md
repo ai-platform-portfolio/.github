@@ -85,13 +85,14 @@ Contributor identity is never reused. Previews scale from zero to one replica
 at0.25vCPU/0.5GiB, so initial requests may encounter a cold start. They are public
 and share the existing environment's resources/networking.
 
-The unfiltered close-only workflow invokes the same action without building an
-image or checking out PR code. It deletes the owned app, grants and identity,
-preserving production, ACR and the environment. Deploy/cleanup share a native
-queue; stale builds cannot overwrite a newer head or recreate a closed PR.
+The same Portfolio workflow handles unfiltered close-only events with its single
+preview job; it skips tests/builds and never checks out PR code on close. It deletes
+the owned app, grants and identity, preserving production, ACR and the environment.
+Deploy/cleanup share a native queue; stale builds cannot overwrite a newer head
+or recreate a closed PR.
 Rerun failed cleanup to retry. Published images remain under independent retention.
 No preview Terraform root, backend key, custom DNS or dedicated build pool exists.
-Merge the shared capability first and adopt its merge SHA in both callers. Close
+Merge the shared capability first and adopt its merge SHA in the caller. Close
 automation becomes available after this onboarding workflow merges; if onboarding
 is abandoned, explicitly remove its acceptance preview with the shared native
 action. Full create/update/close/reopen acceptance is distinct from source CI.

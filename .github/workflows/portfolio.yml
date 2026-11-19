@@ -7,7 +7,10 @@ on:
       - portfolio/terraform/container-app/**
       - profile/README.md
       - .github/workflows/portfolio.yml
-      - .github/workflows/portfolio-preview-cleanup.yml
+
+  # Close events use trusted base code and run cleanup without build/path filters.
+  pull_request_target:
+    types: [closed]
 
   push:
     branches: [main]
@@ -30,12 +33,14 @@ jobs:
       LINEAR_CLIENT_SECRET: ${{ secrets.LINEAR_CLIENT_SECRET }}
 
   validate:
+    if: github.event_name != 'pull_request_target'
     uses: ai-platform-portfolio/ops-shared/.github/workflows/validate.yml@f61b3e4f5c5db462c73581c0b95ddefef14b9569
     with:
       terraform-directories: '["portfolio/terraform/container-app"]'
       tofu-version: '1.13.9'
 
   test:
+    if: github.event_name != 'pull_request_target'
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -66,7 +71,7 @@ jobs:
       contents: read
       id-token: write
 
-    uses: ai-platform-portfolio/ops-shared/.github/workflows/docker.yml@2bd35ab9f6a61579a881fb7c962a44f4507dce42
+    uses: ai-platform-portfolio/ops-shared/.github/workflows/docker.yml@de77993d419a2322928d8b6016c20806224737f9
     with:
       image: portfolio/site
       context: portfolio/image
@@ -106,7 +111,11 @@ jobs:
 
   preview:
     needs: image
-    if: github.event_name == 'pull_request' && needs.image.outputs.digest != ''
+    if: >-
+      always() && !cancelled() &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      (github.event_name == 'pull_request_target' ||
+       (github.event_name == 'pull_request' && needs.image.result == 'success' && needs.image.outputs.digest != ''))
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: central-apply
@@ -128,11 +137,11 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - uses: ai-platform-portfolio/ops-shared/.github/actions/container-app-preview@2bd35ab9f6a61579a881fb7c962a44f4507dce42
+      - uses: ai-platform-portfolio/ops-shared/.github/actions/container-app-preview@de77993d419a2322928d8b6016c20806224737f9
         with:
           resource-group: rg-portfolio-hosting
           environment: portfolio-hosting
           registry: localacrk8s
-          image: localacrk8s.azurecr.io/portfolio/site@${{ needs.image.outputs.digest }}
+          image: ${{ needs.image.outputs.digest && format('localacrk8s.azurecr.io/portfolio/site@{0}', needs.image.outputs.digest) || '' }}
           reader-scope: /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}
           env-vars: ${{ format('{{"AKS_RESOURCE_GROUP":"rg-management","AKS_NAME":"aks-management","AZURE_SUBSCRIPTION_ID":"{0}"}}', secrets.AZURE_SUBSCRIPTION_ID) }}
