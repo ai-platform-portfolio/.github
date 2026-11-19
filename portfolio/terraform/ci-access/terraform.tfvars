@@ -4,9 +4,10 @@ backend_storage_account = {
 }
 
 ci_publisher = {
-  graph_write_roles = ["Application.ReadWrite.OwnedBy", "AppRoleAssignment.ReadWrite.All"]
+  # Claims policy management is tenant-wide; Graph's known read issue needs both policy grants.
+  graph_write_roles = ["Application.ReadWrite.OwnedBy", "AppRoleAssignment.ReadWrite.All", "Policy.ReadWrite.ApplicationConfiguration"]
 
-  graph_read_roles = ["User.Read.All", "Application.Read.All"]
+  graph_read_roles = ["User.Read.All", "Application.Read.All", "Policy.Read.All"]
 
   principal_id = "34a1cc81-438a-4359-8d33-7a00a56e8d2a"
 
