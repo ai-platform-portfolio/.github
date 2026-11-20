@@ -1,4 +1,10 @@
-name: Portfolio infrastructure
+name: Identity infrastructure
+
+run-name: >-
+  ${{ github.event_name == 'pull_request' &&
+      format('Plan identity infrastructure — PR #{0}', github.event.pull_request.number) ||
+      github.ref == 'refs/heads/main' && 'Apply CI-access and workforce-identity infrastructure' ||
+      format('Plan identity infrastructure — {0}', github.ref_name) }}
 
 on:
   pull_request:
