@@ -8,6 +8,10 @@ on:
       - profile/README.md
       - .github/workflows/portfolio.yml
 
+  # Close events use trusted base code and run cleanup without build/path filters.
+  pull_request_target:
+    types: [closed]
+
   push:
     branches: [main]
     paths:
@@ -29,12 +33,14 @@ jobs:
       LINEAR_CLIENT_SECRET: ${{ secrets.LINEAR_CLIENT_SECRET }}
 
   validate:
+    if: github.event_name != 'pull_request_target'
     uses: ai-platform-portfolio/ops-shared/.github/workflows/validate.yml@f61b3e4f5c5db462c73581c0b95ddefef14b9569
     with:
       terraform-directories: '["portfolio/terraform/container-app"]'
       tofu-version: '1.13.9'
 
   test:
+    if: github.event_name != 'pull_request_target'
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -65,13 +71,14 @@ jobs:
       contents: read
       id-token: write
 
-    uses: ai-platform-portfolio/ops-shared/.github/workflows/docker.yml@17a409d93bb7a8d697ee33690adfc96bc9a8651d
+    uses: ai-platform-portfolio/ops-shared/.github/workflows/docker.yml@35f848c7ac4fb5ba7765a8d4298a2d7a9289f340
     with:
       image: portfolio/site
       context: portfolio/image
       tag: ${{ github.event_name == 'pull_request' && format('preview-{0}-{1}', github.event.pull_request.number, github.sha) || '' }}
       publish-preview: true
       scan: true
+      build-engine: ${{ github.event_name == 'pull_request' && 'acr' || 'docker' }}
     secrets:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -101,3 +108,40 @@ jobs:
       TF_BACKEND_RESOURCE_GROUP: ${{ secrets.TF_BACKEND_RESOURCE_GROUP }}
       TF_BACKEND_RESOURCE_NAME: ${{ secrets.TF_BACKEND_RESOURCE_NAME }}
       TF_BACKEND_CONTAINER: ${{ secrets.TF_BACKEND_CONTAINER }}
+
+  preview:
+    needs: image
+    if: >-
+      always() && !cancelled() &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      (github.event_name == 'pull_request_target' ||
+       (github.event_name == 'pull_request' && needs.image.result == 'success' && needs.image.outputs.digest != ''))
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: central-apply
+
+    concurrency:
+      group: portfolio-preview-${{ github.event.pull_request.number }}
+      queue: max
+      cancel-in-progress: false
+
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+
+    steps:
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - uses: ai-platform-portfolio/ops-shared/.github/actions/container-app-preview@ef2c9ebe3df131f3bf2a92c2a86e360dad95c5e6
+        with:
+          resource-group: rg-portfolio-hosting
+          environment: portfolio-hosting
+          registry: localacrk8s
+          image: ${{ needs.image.outputs.digest && format('localacrk8s.azurecr.io/portfolio/site@{0}', needs.image.outputs.digest) || '' }}
+          identity: portfolio-hosting
+          env-vars: ${{ format('{{"AKS_RESOURCE_GROUP":"rg-management","AKS_NAME":"aks-management","AZURE_SUBSCRIPTION_ID":"{0}"}}', secrets.AZURE_SUBSCRIPTION_ID) }}

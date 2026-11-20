@@ -27,3 +27,8 @@ cluster = {
   resource_group_name = "rg-management"
   name                = "aks-management"
 }
+
+preview_cleanup = {
+  schedule     = "0 2 * * *"
+  github_owner = "ai-platform-portfolio"
+}
