@@ -1,4 +1,13 @@
-name: Portfolio
+name: Portfolio delivery
+
+run-name: >-
+  ${{ github.event_name == 'pull_request_target' &&
+      format('Remove portfolio preview — PR #{0}', github.event.pull_request.number) ||
+      github.event_name == 'pull_request' &&
+      format('Check portfolio PR #{0}{1}', github.event.pull_request.number,
+        github.event.pull_request.head.repo.full_name == github.repository && ' and deploy preview' || '') ||
+      github.ref == 'refs/heads/main' && 'Deploy production portfolio' ||
+      format('Check portfolio — {0}', github.ref_name) }}
 
 on:
   pull_request:
@@ -85,7 +94,7 @@ jobs:
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
   infrastructure:
-    name: Container App infrastructure
+    name: ${{ github.ref == 'refs/heads/main' && 'Deploy production infrastructure' || 'Plan production infrastructure' }}
     needs: image
     # Publish/scan must succeed first. PRs plan; main pushes and manual runs apply.
     if: needs.image.outputs.digest != ''
@@ -110,6 +119,7 @@ jobs:
       TF_BACKEND_CONTAINER: ${{ secrets.TF_BACKEND_CONTAINER }}
 
   preview:
+    name: ${{ github.event_name == 'pull_request_target' && 'Remove PR preview' || 'Deploy PR preview' }}
     needs: image
     if: >-
       always() && !cancelled() &&
