@@ -21,8 +21,9 @@ locals {
 resource "azurerm_role_assignment" "ci_publisher" {
   for_each = var.ci_publisher.role_assignments
 
+  # Match the namespace scope casing returned by Azure Authorization.
   scope = each.value.scope == "aks_namespace" ? format(
-    "/subscriptions/%s/resourceGroups/%s/providers/Microsoft.ContainerService/managedClusters/%s/namespaces/%s",
+    "/subscriptions/%s/resourcegroups/%s/providers/Microsoft.ContainerService/managedClusters/%s/namespaces/%s",
     data.azurerm_client_config.current.subscription_id,
     each.value.aks_namespace.resource_group_name,
     each.value.aks_namespace.cluster_name,
