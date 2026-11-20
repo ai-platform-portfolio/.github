@@ -15,20 +15,19 @@ variable "ci_publisher" {
     role_assignments = map(object({
       scope                = string
       role_definition_name = string
-      aks_namespace = optional(object({
-        resource_group_name = string
-        cluster_name        = string
-        namespace           = string
-      }))
     }))
   })
 
   validation {
-    condition = alltrue([
-      for assignment in var.ci_publisher.role_assignments :
-      contains(["subscription", "backend", "aks_namespace"], assignment.scope) &&
-      ((assignment.scope == "aks_namespace") == (assignment.aks_namespace != null))
-    ])
-    error_message = "Select subscription, backend, or aks_namespace and provide namespace details only for aks_namespace."
+    condition     = alltrue([for assignment in var.ci_publisher.role_assignments : contains(["subscription", "backend", "management_aks"], assignment.scope)])
+    error_message = "Select a declared subscription, backend, or management AKS scope."
   }
+}
+
+variable "management_aks" {
+  description = "Existing management AKS cluster that CI can access."
+  type = object({
+    resource_group_name = string
+    name                = string
+  })
 }

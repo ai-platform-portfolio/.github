@@ -22,15 +22,14 @@ ci_publisher = {
       role_definition_name = "Storage Blob Data Contributor"
     }
 
-    sre_namespace = {
-      scope                = "aks_namespace"
+    management_aks = {
+      scope                = "management_aks"
       role_definition_name = "Azure Kubernetes Service RBAC Writer"
-
-      aks_namespace = {
-        resource_group_name = "rg-management"
-        cluster_name        = "aks-management"
-        namespace           = "agent-catalog-sre"
-      }
     }
   }
+}
+
+management_aks = {
+  resource_group_name = "rg-management"
+  name                = "aks-management"
 }

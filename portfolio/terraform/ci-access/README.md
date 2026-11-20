@@ -2,10 +2,10 @@
 
 Owns the CI publisher's explicit Azure grants, including
 Foundry Project Manager at subscription scope and Storage Blob Data Contributor
-on the existing Terraform backend account. It also owns AKS RBAC Writer scoped
-to the SRE namespace on management AKS. The root uses the existing principal and
+on the existing Terraform backend account. It also owns AKS RBAC Writer across
+management AKS. The root uses the existing principal and
 built-in roles. After rebuilding management AKS, reconcile this root before
-running SRE deployment to restore the namespace grant if needed. Other
+running SRE deployment to restore the cluster grant if needed. Other
 externally supplied roles retain their existing ownership.
 
 The root also owns the explicitly approved Microsoft Graph read roles
