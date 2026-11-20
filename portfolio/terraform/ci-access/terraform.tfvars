@@ -21,5 +21,15 @@ ci_publisher = {
       scope                = "backend"
       role_definition_name = "Storage Blob Data Contributor"
     }
+
+    management_aks = {
+      scope                = "management_aks"
+      role_definition_name = "Azure Kubernetes Service RBAC Writer"
+    }
   }
+}
+
+management_aks = {
+  resource_group_name = "rg-management"
+  name                = "aks-management"
 }

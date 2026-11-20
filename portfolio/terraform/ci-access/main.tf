@@ -11,13 +11,14 @@ data "azurerm_storage_account" "backend" {
 
 locals {
   scopes = {
-    subscription = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
-    backend      = data.azurerm_storage_account.backend.id
+    subscription   = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
+    backend        = data.azurerm_storage_account.backend.id
+    management_aks = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourcegroups/${var.management_aks.resource_group_name}/providers/Microsoft.ContainerService/managedClusters/${var.management_aks.name}"
   }
 }
 
 # The existing publisher registration/federation is externally owned. This root
-# owns only the explicit grants formerly managed by disposable GitOps bootstrap.
+# owns the explicit Azure grants assigned to the publisher.
 resource "azurerm_role_assignment" "ci_publisher" {
   for_each = var.ci_publisher.role_assignments
 
