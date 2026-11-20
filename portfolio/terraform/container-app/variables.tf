@@ -53,3 +53,11 @@ variable "image" {
     error_message = "Supply a published registry/repository@sha256:digest image reference."
   }
 }
+
+variable "preview_cleanup" {
+  description = "Nightly leftover cleanup schedule (UTC) and GitHub organization."
+  type = object({
+    schedule     = string
+    github_owner = string
+  })
+}

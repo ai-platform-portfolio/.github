@@ -95,8 +95,10 @@ identity, starting `python /app/preview_cleanup.py` instead of the web server.
 The shared script is included from an immutable source with a verified checksum.
 Only apps whose name/tags match a verified closed PR in this organization are
 deleted. Open PRs and failed/unknown GitHub lookups remain. The job has no running
-replica between executions, a five-minute timeout and one retry. Successful main
-delivery updates its image; production delivery remains the existing OpenTofu path.
+replica between executions, a five-minute timeout and one retry. The existing
+portfolio OpenTofu root owns the job through the shared Container App module, so the same plan/apply updates both images. A one-time import adopts the
+job created during acceptance without recreating it; remove that import after the
+first successful apply. The native scheduled job adds no separate provisioning step.
 
 Published images have independent retention. No preview Terraform root, backend
 key, custom DNS, dedicated build pool or GitHub nightly workflow is added.

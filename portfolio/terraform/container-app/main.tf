@@ -47,7 +47,7 @@ module "identity" {
 }
 
 module "application" {
-  source                       = "git::https://github.com/ai-platform-portfolio/terraform.git//modules/azure/container-app?ref=a35d3f702ae23a6c6d96f1623937fe177044e992"
+  source                       = "git::https://github.com/ai-platform-portfolio/terraform.git//modules/azure/container-app?ref=441f10efa69b2b67b6f5a6d19707493576ac5160"
   name                         = var.application.name
   resource_group_name          = azurerm_resource_group.portfolio.name
   container_app_environment_id = module.environment.id
@@ -68,6 +68,21 @@ module "application" {
     AZURE_SUBSCRIPTION_ID = data.azurerm_client_config.current.subscription_id
     AKS_RESOURCE_GROUP    = var.cluster.resource_group_name
     AKS_NAME              = var.cluster.name
+  }
+
+  scheduled_jobs = {
+    preview-cleanup = {
+      schedule = var.preview_cleanup.schedule
+      command  = ["python"]
+      args     = ["/app/preview_cleanup.py"]
+
+      environment_variables = {
+        AZURE_CLIENT_ID        = module.identity.client_id
+        AZURE_SUBSCRIPTION_ID  = data.azurerm_client_config.current.subscription_id
+        PREVIEW_RESOURCE_GROUP = azurerm_resource_group.portfolio.name
+        PREVIEW_GITHUB_OWNER   = var.preview_cleanup.github_owner
+      }
+    }
   }
 
   # Pull/runtime grants must exist before Azure starts the app.
