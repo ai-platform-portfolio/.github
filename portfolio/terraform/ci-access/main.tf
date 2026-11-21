@@ -11,9 +11,8 @@ data "azurerm_storage_account" "backend" {
 
 locals {
   scopes = {
-    subscription   = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
-    backend        = data.azurerm_storage_account.backend.id
-    management_aks = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourcegroups/${var.management_aks.resource_group_name}/providers/Microsoft.ContainerService/managedClusters/${var.management_aks.name}"
+    subscription = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
+    backend      = data.azurerm_storage_account.backend.id
   }
 }
 

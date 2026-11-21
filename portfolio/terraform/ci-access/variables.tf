@@ -19,15 +19,7 @@ variable "ci_publisher" {
   })
 
   validation {
-    condition     = alltrue([for assignment in var.ci_publisher.role_assignments : contains(["subscription", "backend", "management_aks"], assignment.scope)])
-    error_message = "Select a declared subscription, backend, or management AKS scope."
+    condition     = alltrue([for assignment in var.ci_publisher.role_assignments : contains(["subscription", "backend"], assignment.scope)])
+    error_message = "Select a declared subscription or backend scope."
   }
-}
-
-variable "management_aks" {
-  description = "Existing management AKS cluster that CI can access."
-  type = object({
-    resource_group_name = string
-    name                = string
-  })
 }
