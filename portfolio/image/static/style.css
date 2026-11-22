@@ -62,12 +62,30 @@ button {
 .mark span {
   color: #718644;
 }
-.masthead nav {
-  display: flex;
-  gap: 36px;
+.github-link {
   font-size: 13px;
 }
-.masthead nav a:hover,
+.portfolio-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px clamp(26px, 4vw - 16px, 40px);
+  padding: 48px 0 26px;
+  font-size: 18px;
+  line-height: 1.4;
+  text-align: center;
+}
+.portfolio-nav [aria-disabled="true"] {
+  color: var(--muted);
+}
+.nav-divider {
+  width: 1px;
+  height: 1em;
+  background: var(--line);
+}
+.github-link:hover,
+.portfolio-nav a:hover,
 .text-link:hover,
 footer a:hover {
   text-decoration: underline;
@@ -396,6 +414,10 @@ footer a {
   .page {
     padding: 0 32px;
   }
+  .portfolio-nav {
+    column-gap: 26px;
+    font-size: 16px;
+  }
   .hero {
     gap: 36px;
     padding-top: 60px;
@@ -420,6 +442,11 @@ footer a {
     font-size: 25px;
   }
 }
+@media (max-width: 820px) {
+  .nav-divider {
+    display: none;
+  }
+}
 @media (max-width: 700px) {
   .page {
     padding: 0 23px;
@@ -432,12 +459,13 @@ footer a {
     gap: 10px;
     letter-spacing: 1px;
   }
-  .masthead nav {
-    gap: 20px;
+  .github-link {
     font-size: 11px;
   }
-  .masthead nav a:first-child {
-    display: none;
+  .portfolio-nav {
+    column-gap: 22px;
+    padding: 28px 0 12px;
+    font-size: 14px;
   }
   .hero {
     grid-template-columns: 1fr;
