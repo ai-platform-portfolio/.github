@@ -10,7 +10,7 @@ environment = {
 application = {
   name         = "portfolio"
   hostname     = "portfolio.dev.michaelalinks.com"
-  min_replicas = 0
+  min_replicas = 1
 }
 
 dns_zone = {
