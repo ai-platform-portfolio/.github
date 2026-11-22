@@ -62,9 +62,7 @@ button {
 .mark span {
   color: #718644;
 }
-.masthead nav {
-  display: flex;
-  gap: 36px;
+.github-link {
   font-size: 13px;
 }
 .portfolio-nav {
@@ -72,7 +70,7 @@ button {
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 12px 40px;
+  gap: 12px clamp(26px, 4vw - 16px, 40px);
   padding: 48px 0 26px;
   font-size: 18px;
   line-height: 1.4;
@@ -86,7 +84,7 @@ button {
   height: 1em;
   background: var(--line);
 }
-.masthead nav a:hover,
+.github-link:hover,
 .portfolio-nav a:hover,
 .text-link:hover,
 footer a:hover {
@@ -444,6 +442,11 @@ footer a {
     font-size: 25px;
   }
 }
+@media (max-width: 820px) {
+  .nav-divider {
+    display: none;
+  }
+}
 @media (max-width: 700px) {
   .page {
     padding: 0 23px;
@@ -456,20 +459,13 @@ footer a {
     gap: 10px;
     letter-spacing: 1px;
   }
-  .masthead nav {
-    gap: 20px;
+  .github-link {
     font-size: 11px;
-  }
-  .masthead nav a:first-child {
-    display: none;
   }
   .portfolio-nav {
     column-gap: 22px;
     padding: 28px 0 12px;
     font-size: 14px;
-  }
-  .nav-divider {
-    display: none;
   }
   .hero {
     grid-template-columns: 1fr;
