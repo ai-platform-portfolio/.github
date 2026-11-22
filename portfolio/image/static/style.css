@@ -39,14 +39,16 @@ button {
   padding: 0 64px;
 }
 .masthead {
-  height: 112px;
+  min-height: 112px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 24px;
   border-bottom: 1px solid var(--line);
 }
 .wordmark {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   gap: 16px;
   font-size: 11px;
@@ -64,8 +66,13 @@ button {
 }
 .masthead nav {
   display: flex;
-  gap: 36px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px 24px;
   font-size: 13px;
+}
+.masthead nav [aria-disabled="true"] {
+  color: var(--muted);
 }
 .masthead nav a:hover,
 .text-link:hover,
@@ -425,7 +432,10 @@ footer a {
     padding: 0 23px;
   }
   .masthead {
-    height: 84px;
+    min-height: 84px;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 0;
   }
   .wordmark {
     font-size: 9px;
@@ -433,11 +443,10 @@ footer a {
     letter-spacing: 1px;
   }
   .masthead nav {
-    gap: 20px;
-    font-size: 11px;
-  }
-  .masthead nav a:first-child {
-    display: none;
+    flex-basis: 100%;
+    justify-content: flex-start;
+    gap: 10px 18px;
+    font-size: 12px;
   }
   .hero {
     grid-template-columns: 1fr;

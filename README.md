@@ -58,6 +58,23 @@ on an in-cluster database, ingress, Argo CD or cluster credentials. Its own reso
 group, managed identity and separate backend key are outside `gitops/bootstrap`.
 The existing `localacrk8s` registry and DNS zone are persistent prerequisites.
 
+### Landing page baseline
+
+On 22 November 2026, production revision `portfolio--0000004` served the landing
+page before the navigation update. Its image was verified in Azure Container
+Registry:
+
+```text
+localacrk8s.azurecr.io/portfolio/site@sha256:f234dba9399ac8f25f0901d3730b870a53b794ac92e6dda97b3018eb739c1975
+```
+
+The image was built from `fb6b93dd237bbaaed329eb5f673363f737e698d4` in the
+[production delivery run](https://github.com/ai-platform-portfolio/.github/actions/runs/45025489252).
+To roll back the navigation source, revert its commit and let the existing
+delivery workflow rebuild. For an exact image rollback, supply the recorded
+digest to the hosting OpenTofu root's `image` input and review the plan. The
+digest remains usable while the manifest is retained in ACR.
+
 ### Delivery
 
 `.github/workflows/portfolio.yml` composes the shared Docker and Azure OpenTofu
