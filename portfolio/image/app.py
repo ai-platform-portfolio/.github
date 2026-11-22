@@ -1,6 +1,7 @@
 """Public portfolio and request-driven Azure AKS metadata status."""
 
 from datetime import datetime, timezone
+from hashlib import sha256
 import logging
 import os
 from pathlib import Path
@@ -14,13 +15,23 @@ import json
 from azure.core.exceptions import AzureError
 from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
 from fastapi import FastAPI
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+
+
+def render_homepage(directory):
+    html = (directory / "index.html").read_text(encoding="utf-8")
+    for name in ("style.css", "app.js"):
+        version = sha256((directory / name).read_bytes()).hexdigest()
+        url = f"/static/{name}"
+        html = html.replace(f'"{url}"', f'"{url}?v={version}"')
+    return html
 
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 assets = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=assets), name="static")
+homepage = render_homepage(assets)
 
 _lock = Lock()
 _cached = None
@@ -95,7 +106,7 @@ async def response_headers(request, call_next):
 
 @app.get("/")
 def index():
-    return FileResponse(assets / "index.html")
+    return HTMLResponse(homepage, headers={"Cache-Control": "no-cache"})
 
 
 @app.get("/healthz")

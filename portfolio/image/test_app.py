@@ -1,7 +1,11 @@
-"""Meaningful status boundaries: deletion, auth failure, cache and power vs health."""
+"""Portfolio homepage asset versioning and cluster status boundaries."""
 
+from hashlib import sha256
 import json
 import os
+from pathlib import Path
+from shutil import copyfile
+from tempfile import TemporaryDirectory
 import unittest
 from unittest.mock import patch
 from urllib.error import HTTPError
@@ -9,6 +13,32 @@ from urllib.error import HTTPError
 from azure.core.exceptions import ClientAuthenticationError
 
 import app
+
+
+class HomepageTests(unittest.TestCase):
+    def test_homepage_requires_revalidation_and_references_current_assets(self):
+        response = app.index()
+        self.assertEqual(response.headers["cache-control"], "no-cache")
+        for name in ("style.css", "app.js"):
+            version = sha256((app.assets / name).read_bytes()).hexdigest()
+            self.assertIn(f'"/static/{name}?v={version}"'.encode(), response.body)
+
+    def test_changing_one_asset_changes_only_its_url(self):
+        with TemporaryDirectory() as temp:
+            directory = Path(temp)
+            for name in ("index.html", "style.css", "app.js"):
+                copyfile(app.assets / name, directory / name)
+
+            previous = app.render_homepage(directory)
+            old_version = sha256((directory / "style.css").read_bytes()).hexdigest()
+            new_css = b"body { color: blue; }"
+            (directory / "style.css").write_bytes(new_css)
+            current = app.render_homepage(directory)
+
+        old_url = f"/static/style.css?v={old_version}"
+        new_url = f"/static/style.css?v={sha256(new_css).hexdigest()}"
+        self.assertIn(old_url, previous)
+        self.assertEqual(current, previous.replace(old_url, new_url))
 
 
 class StatusTests(unittest.TestCase):
