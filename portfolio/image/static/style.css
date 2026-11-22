@@ -39,16 +39,14 @@ button {
   padding: 0 64px;
 }
 .masthead {
-  min-height: 112px;
+  height: 112px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
   border-bottom: 1px solid var(--line);
 }
 .wordmark {
   display: flex;
-  flex-shrink: 0;
   align-items: center;
   gap: 16px;
   font-size: 11px;
@@ -66,15 +64,30 @@ button {
 }
 .masthead nav {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 12px 24px;
+  gap: 36px;
   font-size: 13px;
 }
-.masthead nav [aria-disabled="true"] {
+.portfolio-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px 40px;
+  padding: 48px 0 26px;
+  font-size: 18px;
+  line-height: 1.4;
+  text-align: center;
+}
+.portfolio-nav [aria-disabled="true"] {
   color: var(--muted);
 }
+.nav-divider {
+  width: 1px;
+  height: 1em;
+  background: var(--line);
+}
 .masthead nav a:hover,
+.portfolio-nav a:hover,
 .text-link:hover,
 footer a:hover {
   text-decoration: underline;
@@ -403,6 +416,10 @@ footer a {
   .page {
     padding: 0 32px;
   }
+  .portfolio-nav {
+    column-gap: 26px;
+    font-size: 16px;
+  }
   .hero {
     gap: 36px;
     padding-top: 60px;
@@ -432,10 +449,7 @@ footer a {
     padding: 0 23px;
   }
   .masthead {
-    min-height: 84px;
-    flex-wrap: wrap;
-    gap: 12px;
-    padding: 12px 0;
+    height: 84px;
   }
   .wordmark {
     font-size: 9px;
@@ -443,10 +457,19 @@ footer a {
     letter-spacing: 1px;
   }
   .masthead nav {
-    flex-basis: 100%;
-    justify-content: flex-start;
-    gap: 10px 18px;
-    font-size: 12px;
+    gap: 20px;
+    font-size: 11px;
+  }
+  .masthead nav a:first-child {
+    display: none;
+  }
+  .portfolio-nav {
+    column-gap: 22px;
+    padding: 28px 0 12px;
+    font-size: 14px;
+  }
+  .nav-divider {
+    display: none;
   }
   .hero {
     grid-template-columns: 1fr;
