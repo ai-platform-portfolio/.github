@@ -23,3 +23,8 @@ variable "ci_publisher" {
     error_message = "Select a declared subscription or backend scope."
   }
 }
+
+variable "telemetry_api_object_id" {
+  description = "Entra application registration object ID for the existing private telemetry token audience."
+  type        = string
+}

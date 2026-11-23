@@ -48,3 +48,22 @@ storage resource metadata live in tracked `terraform.tfvars`; credentials and
 backend configuration remain ignored. After apply or import, require a no-change plan
 and rerun the failed Container App CI plan to verify effective backend access.
 The pipeline uses the existing organisation Azure OIDC identity and secrets.
+
+## Private telemetry role
+
+This root tracks publisher co-ownership of `aks-mcp-localdev` and the
+application-only `Telemetry.Query` role. The registration, its delegated
+scope, and its existing user role remain managed by their current owner.
+Workload assignments are reconciled separately by Crossplane.
+
+Before the first CI apply, an authorised operator initialises this root against
+the persistent backend and applies just the co-owner binding using their
+existing local Azure session:
+
+```sh
+tofu plan -target=azuread_application_owner.telemetry_ci_publisher -out=telemetry-owner.tfplan
+tofu apply telemetry-owner.tfplan
+```
+
+The existing CI publisher can then create and reconcile the role through
+`Application.ReadWrite.OwnedBy`. The binding survives cluster replacement.
