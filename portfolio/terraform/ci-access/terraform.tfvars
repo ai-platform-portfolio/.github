@@ -3,6 +3,8 @@ backend_storage_account = {
   resource_group_name = "claudeaiportfolio"
 }
 
+telemetry_api_object_id = "e6a0001d-de70-4603-be39-0f6ad62545ce"
+
 ci_publisher = {
   # Claims policy management is tenant-wide; Graph's known read issue needs both policy grants.
   graph_write_roles = ["Application.ReadWrite.OwnedBy", "AppRoleAssignment.ReadWrite.All", "Policy.ReadWrite.ApplicationConfiguration"]
